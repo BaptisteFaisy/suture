@@ -173,3 +173,85 @@ footer {
     animation: none !important;
   }
 }
+
+/* --- Coque applicative : navigation, écrans, liste des classeurs --- */
+.mainnav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.mainnav button,
+.brand-button {
+  font: inherit;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  padding: 0.3rem 0.7rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.mainnav button:hover,
+.brand-button:hover {
+  border-color: var(--line);
+  background: var(--panel);
+}
+
+.mainnav button:focus-visible,
+.brand-button:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: 2px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.brand-button {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.brand-name {
+  font-size: 1.5rem;
+  letter-spacing: 0.02em;
+}
+
+.screen {
+  margin-bottom: 1.5rem;
+}
+
+.workbook-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.workbook-entry {
+  font: inherit;
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--thread);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.workbook-entry:hover {
+  border-left-color: var(--scar);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
