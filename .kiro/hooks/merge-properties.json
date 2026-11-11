@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "name": "merge-properties",
+  "description": "Lance les propriétés SUT-P-04 à SUT-P-09 à l'enregistrement d'un fichier de diff ou de merge.",
+  "enabled": true,
+  "when": {
+    "type": "fileEdited",
+    "patterns": "packages/{diff,merge}/**/*.ts"
+  },
+  "then": {
+    "type": "runCode",
+    "command": "pnpm vitest run packages/diff packages/merge"
+  }
+}
