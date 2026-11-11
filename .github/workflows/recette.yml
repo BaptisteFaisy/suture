@@ -21,7 +21,7 @@ jobs:
   recette:
     name: recette
     runs-on: [self-hosted, linux, x64, suture-worker]
-    timeout-minutes: 20 # hors PR : suite complète + construction + conformité (justifié)
+    timeout-minutes: 30 # hors PR : suite complète + construction + conformité + banc de perf (~5 min : préparation du classeur de 200 000 cellules, puis passes mesurées)
     steps:
       - uses: actions/checkout@v4
         with:
@@ -57,6 +57,25 @@ jobs:
       - name: Gardes de dépôt (vocabulaire, taille des fichiers)
         shell: bash
         run: pnpm guards
+
+      # Banc de performance (200 000 cellules) : la préparation du classeur et
+      # les passes mesurées ajoutent ~5 min. `continue-on-error` : une cible du
+      # cahier non tenue ne casse pas la recette — le verdict s'affiche dans le
+      # journal et dans bench/RESULTS.md, téléversé comme artefact.
+      - name: Banc de performance
+        continue-on-error: true
+        shell: bash
+        run: |
+          node bench/generate-large.mjs
+          node bench/perf.mjs
+
+      - name: Artefact — résultats du banc
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results
+          path: bench/RESULTS.md
+          if-no-files-found: warn
 
       - name: Contrôle de conformité au concours
         env:
