@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "name": "canonical-fresh",
+  "description": "Après une tâche de spec, vérifie que les fichiers d'exemple ont une vue cells/ à jour (dérivation déterministe, SUT-P-02).",
+  "enabled": true,
+  "when": {
+    "type": "specTaskCompleted"
+  },
+  "then": {
+    "type": "runCode",
+    "command": "pnpm vitest run packages/canonical packages/contracts"
+  }
+}

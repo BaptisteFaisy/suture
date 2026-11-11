@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "name": "fidelity-check",
+  "description": "Vérifie la propriété SUT-P-10 (parties non retouchées identiques octet pour octet) sur le corpus.",
+  "enabled": true,
+  "when": {
+    "type": "fileEdited",
+    "patterns": "packages/ooxml-patch/**/*.ts"
+  },
+  "then": {
+    "type": "runCode",
+    "command": "pnpm vitest run packages/ooxml-patch"
+  }
+}

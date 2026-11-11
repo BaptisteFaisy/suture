@@ -1,0 +1,10 @@
+{
+  "name": "@suture/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared types and invariants for all Suture packages (single source of truth).",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  }
+}

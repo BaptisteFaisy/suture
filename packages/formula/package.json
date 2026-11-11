@@ -1,0 +1,13 @@
+{
+  "name": "@suture/formula",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A1 <-> R1C1 conversion and cell reference shifting.",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@suture/contracts": "workspace:*"
+  }
+}
