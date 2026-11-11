@@ -9,7 +9,7 @@ import { CompareScreen } from "./screens/compare/CompareScreen";
 import { HomeScreen } from "./screens/home/HomeScreen";
 import { SettingsScreen } from "./screens/settings/SettingsScreen";
 import { WorkbookScreen } from "./screens/workbook/WorkbookScreen";
-import { StoreContext, type StoreAdapter, type WorkbookSummary } from "./store";
+import { StoreContext, createStubStore } from "./store";
 
 const SCREENS: Record<ScreenName, () => ReactNode> = {
   home: () => <HomeScreen />,
@@ -20,22 +20,7 @@ const SCREENS: Record<ScreenName, () => ReactNode> = {
   settings: () => <SettingsScreen />,
 };
 
-/** Stub adapter: keeps every screen renderable before the engines land. */
-function useStubStore(openWorkbook: (id: string) => void): StoreAdapter {
-  return useMemo(
-    () => ({
-      workbooks: [] as WorkbookSummary[],
-      status: "idle" as const,
-      error: null,
-      demoAvailable: false,
-      openWorkbook,
-      trackFile: async () => undefined,
-      loadDemo: async () => undefined,
-    }),
-    [openWorkbook],
-  );
-}
-
+/** The store adapter is provided by the real implementation (see store/). */
 export function App() {
   const [lang, setLang] = useState<Lang>(detectLang());
   const [screen, setScreen] = useState<ScreenName>("home");
@@ -56,7 +41,10 @@ export function App() {
     setParams(last.params);
   };
 
-  const store = useStubStore((id) => go("workbook", { workbookId: id }));
+  const store = useMemo(
+    () => createStubStore(),
+    [],
+  );
   const t = (key: string) => translateCommon(lang, key);
   const renderScreen = SCREENS[screen];
 
