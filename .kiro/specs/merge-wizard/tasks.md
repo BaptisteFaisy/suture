@@ -1,0 +1,22 @@
+# Tasks: Merge Wizard (Design-First)
+
+- [ ] 1. Add the combine view types to `@suture/contracts` (`Side`, `DisagreementView`, `Decision`, `FallbackView`, `CombineReportView`, `ThreadNodeView`) and freeze them — 45 min
+- [ ] 2. Implement the design tokens for the sewing-workshop palette (paper, ink, seam, scar, alt thread) and a contrast unit test for every pairing — 45 min
+- [ ] 3. Implement `CombineWizard.tsx` step state machine with gating (`canContinue` on settled disagreements and chosen fallback sides) — 1 h
+- [ ] 4. Implement `useCombinePlan.ts`: run diff/combine in a web worker, expose loading and error states — 1 h
+- [ ] 5. Implement `StepApplied.tsx`: applied changes grouped per side and sheet, counts, jump-to-cell links, read-only grid inspection — 1 h
+- [ ] 6. Implement `DisagreementCard.tsx`: original value, both competing values with side labels, radio selection and free-entry field — 1 h
+- [ ] 7. Implement custom-value validation per cell kind (locale-aware number parsing, formula must start with `=`) with inline errors — 45 min
+- [ ] 8. Implement `StepDisagreements.tsx`: keyboard-settable list, open-count announcement, `Continue` disabled while any remains — 45 min
+- [ ] 9. Implement `FallbackPanel.tsx`: per-sheet side choice, lost changes list from the other side, blocked continuation until chosen (SUT-F-20) — 1 h
+- [ ] 10. Implement the report builder: pure function from plan + decisions to the four sections, with a property test asserting every change appears exactly once — 1 h
+- [ ] 11. Implement `StepReport.tsx`: four sections, download report (Markdown), download combined workbook, report attached to the version note on save — 1 h
+- [ ] 12. Implement `TwoFilesWizard.tsx` (P6): original + two copies, create versions and scenarios, jump into step 1, refuse unreadable or oversized files with a clear reason — 1 h
+- [ ] 13. Implement the two-way mode for an unknown origin (SUT-F-24) and the missing-origin-marker prompt (SUT-F-06 fallback) — 45 min
+- [ ] 14. Implement `HistoryThread.tsx` (screen 2): lane layout, version points, combine stitches, milestone knots, scar and snag styling — 1 h
+- [ ] 15. Implement `ScenarioBar.tsx` and `MilestoneList.tsx`: create a scenario, pick the active one, name a version as a milestone, refresh without reload — 45 min
+- [ ] 16. Accessibility pass: full keyboard path through the three steps, focus order, polite live region for step and count changes, reduced-motion handling — 1 h
+- [ ] 17. i18n: complete English and French message catalogues, locale number and date formatting, report rendered in the active language — 45 min
+- [ ] 18. Tests: step gating, decision validation, report partition property, thread lane assignment, both-locale vocabulary scan — 1 h
+- [ ] 19. E2E (outside PR CI): demo workbook, two-files wizard, settle one disagreement, download and re-read the combined file with the canonical reader — 1 h
+- [ ] 20. Final review: files < 500 lines, functions < 50 lines, virtual-window and i18n helpers reused from `compare-ui`, suite green — 30 min
