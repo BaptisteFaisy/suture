@@ -19,7 +19,7 @@ permissions:
 jobs:
   build:
     name: build-and-deploy
-    runs-on: [self-hosted, linux, x64, suture-worker]
+    runs-on: [self-hosted, linux, x64, suture-pc]
     timeout-minutes: 10 # hors PR : installation + build + publication (justifié)
     environment:
       name: github-pages
