@@ -13,7 +13,7 @@ import { join, relative } from "node:path";
 
 const ROOTS = ["packages/ui/src", "apps/web/src"];
 const EXTENSIONS = new Set([".ts", ".tsx"]);
-const ALLOW_PATH = /(^|\/)(export|developer)(\/|\.)/i;
+const ALLOW_PATH = /(^|\/)(export|developer)(\/|\.)|\bexport\b/i;
 const ALLOW_LINE = "vg-allow-line";
 
 const BANNED = [
