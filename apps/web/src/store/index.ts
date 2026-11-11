@@ -59,6 +59,8 @@ export interface ComparisonView {
     formats: number;
     rowsInserted: number;
     rowsDeleted: number;
+    colsInserted: number;
+    colsDeleted: number;
     partsChanged: number;
   };
   /** Non-cell parts changed on one side (charts, macros...). */

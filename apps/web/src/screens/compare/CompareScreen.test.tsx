@@ -29,6 +29,8 @@ const VIEW: ComparisonView = {
     formats: 1,
     rowsInserted: 1,
     rowsDeleted: 0,
+    colsInserted: 0,
+    colsDeleted: 0,
     partsChanged: 0,
   },
   otherParts: ["Chart 1"],
@@ -43,6 +45,8 @@ const IDENTICAL: ComparisonView = {
     formats: 0,
     rowsInserted: 0,
     rowsDeleted: 0,
+    colsInserted: 0,
+    colsDeleted: 0,
     partsChanged: 0,
   },
   otherParts: [],
@@ -151,6 +155,31 @@ describe("deterministic summary (SUT-F-13)", () => {
     });
     renderScreen(store);
     expect(screen.getByText(/7 typed changes/)).toBeTruthy();
+  });
+});
+
+describe("columns in the summary", () => {
+  const storeWithColumns = () =>
+    fakeStore({
+      comparison: { ...VIEW, summary: { ...VIEW.summary, colsInserted: 1, colsDeleted: 2 } },
+    });
+
+  it("shows the columns that were added and removed", () => {
+    renderScreen(storeWithColumns());
+    expect(
+      screen.getByText(
+        "2 typed changes, 1 row added, 1 column added, 2 columns removed, 1 result recalculated, 1 format changed",
+      ),
+    ).toBeTruthy();
+  });
+
+  it("shows the columns in French too (SUT-N-08)", () => {
+    renderScreen(storeWithColumns(), "fr");
+    expect(
+      screen.getByText(
+        "2 saisies modifiées, 1 ligne ajoutée, 1 colonne ajoutée, 2 colonnes supprimées, 1 résultat recalculé, 1 format modifié",
+      ),
+    ).toBeTruthy();
   });
 });
 

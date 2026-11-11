@@ -32,6 +32,8 @@ export interface SummaryCounts {
   inputsModified: number;
   rowsAdded: number;
   rowsRemoved: number;
+  colsAdded: number;
+  colsRemoved: number;
   consequences: number;
   formats: number;
   partsChanged: number;
@@ -44,6 +46,8 @@ const SUMMARY_PARTS: { key: string; count: keyof SummaryCounts }[] = [
   { key: "summary.inputs", count: "inputsModified" },
   { key: "summary.rowsAdded", count: "rowsAdded" },
   { key: "summary.rowsRemoved", count: "rowsRemoved" },
+  { key: "summary.colsAdded", count: "colsAdded" },
+  { key: "summary.colsRemoved", count: "colsRemoved" },
   { key: "summary.consequences", count: "consequences" },
   { key: "summary.formats", count: "formats" },
   { key: "summary.parts", count: "partsChanged" },
@@ -94,6 +98,8 @@ export function isIdentical(view: ComparisonView): boolean {
     summary.formats +
     summary.rowsInserted +
     summary.rowsDeleted +
+    summary.colsInserted +
+    summary.colsDeleted +
     summary.partsChanged;
   return view.rows.length === 0 && counts === 0;
 }
@@ -136,6 +142,8 @@ export function summaryCounts(view: ComparisonView): SummaryCounts {
     inputsModified: view.summary.inputsModified,
     rowsAdded: view.summary.rowsInserted,
     rowsRemoved: view.summary.rowsDeleted,
+    colsAdded: view.summary.colsInserted,
+    colsRemoved: view.summary.colsDeleted,
     consequences: view.summary.consequences,
     formats: view.summary.formats,
     partsChanged: view.summary.partsChanged,
