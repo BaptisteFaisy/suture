@@ -8,9 +8,14 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@suture/contracts": "workspace:*",
-    "isomorphic-git": "^1.25.0",
     "@isomorphic-git/lightning-fs": "^4.6.0",
+    "@suture/canonical": "workspace:*",
+    "@suture/contracts": "workspace:*",
+    "@suture/ooxml-io": "workspace:*",
+    "isomorphic-git": "^1.25.0",
     "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "fflate": "^0.8.2"
   }
 }
