@@ -26,6 +26,12 @@ export const commonMessages: Record<Lang, Record<string, string>> = {
     "error.no-common-origin":
       "These two versions have no common starting point: pick the version they both come from.",
     "error.disagreement-open": "Every disagreement must be decided before combining.",
+    "origin.return.new-version":
+      "This file starts from a known version and the reference has not moved since it left: it can be recorded as a new version.",
+    "origin.return.combine-needed":
+      "This file starts from a known version, but the reference has moved on since it left: a combine is needed.",
+    "origin.return.unknown":
+      "Suture does not recognise where this file starts from: pick the starting version, or let the file name decide.",
     "app.name": "Suture",
     "app.tagline":
       "Versions, scenarios and combines for people who exchange spreadsheets by email.",
@@ -57,6 +63,12 @@ export const commonMessages: Record<Lang, Record<string, string>> = {
     "error.no-common-origin":
       "Ces deux versions n'ont pas de point de départ commun : choisissez la version dont elles proviennent toutes les deux.",
     "error.disagreement-open": "Chaque désaccord doit être tranché avant la réunion.",
+    "origin.return.new-version":
+      "Ce fichier part d'une version connue et la référence n'a pas bougé depuis son départ : il peut être enregistré comme nouvelle version.",
+    "origin.return.combine-needed":
+      "Ce fichier part d'une version connue, mais la référence a avancé depuis son départ : une réunion est nécessaire.",
+    "origin.return.unknown":
+      "Suture ne reconnaît pas le point de départ de ce fichier : choisissez la version de départ, ou laissez le nom du fichier décider.",
     "app.name": "Suture",
     "app.tagline":
       "Versions, scénarios et réunions pour ceux qui s'échangent des classeurs par courriel.",
