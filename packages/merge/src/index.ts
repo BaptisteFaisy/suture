@@ -17,5 +17,6 @@ export {
 } from "./carrier";
 export { buildCoordinateMap, identityMap, type CoordinateMap } from "./coordinates";
 export { combineSheet, describeChange, otherSide, type CellIndex } from "./sheet-plan";
+export { planTwoWay } from "./two-way";
 
 export const packageName = "@suture/merge";
