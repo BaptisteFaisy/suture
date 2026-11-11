@@ -1,0 +1,175 @@
+/* Suture — sober office palette with sewing-atelier touches (thread, stitches).
+   Light, AA contrast, keyboard-first, reduced-motion aware. */
+
+:root {
+  --ink: #1f2933;
+  --ink-soft: #52606d;
+  --paper: #fbfaf7;
+  --panel: #ffffff;
+  --line: #d9d4c8;
+  --thread: #7a5c3e;
+  --scar: #a4442c;
+  --accent: #274c77;
+  --radius: 10px;
+  font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  min-height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand h1 {
+  font-size: 1.9rem;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+/* A stitch: dashed thread over a small scar — the Frankenstein touch. */
+.stitch-mark {
+  width: 34px;
+  height: 12px;
+  display: inline-block;
+  border-top: 2px dashed var(--thread);
+  border-bottom: 2px dashed var(--scar);
+  transform: rotate(-8deg);
+}
+
+.lang-picker select {
+  font: inherit;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.tagline {
+  font-size: 1.15rem;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.5rem;
+}
+
+.empty-state {
+  color: var(--ink-soft);
+  border-left: 3px solid var(--line);
+  padding-left: 0.75rem;
+}
+
+.dropzone {
+  border: 2px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+}
+
+.dropzone-title {
+  font-size: 1.1rem;
+  margin: 0 0 0.35rem;
+  color: var(--accent);
+}
+
+.dropzone-hint {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.dropzone-received {
+  margin: 0.9rem 0 0;
+  color: var(--thread);
+}
+
+.demo {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.demo-button {
+  font: inherit;
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.demo-button:disabled {
+  background: var(--line);
+  border-color: var(--line);
+  color: var(--ink-soft);
+  cursor: not-allowed;
+}
+
+.demo-button:focus-visible,
+.lang-picker select:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: 2px;
+}
+
+.demo-hint {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+footer {
+  margin-top: auto;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  border-top: 1px dashed var(--line);
+  padding-top: 0.9rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

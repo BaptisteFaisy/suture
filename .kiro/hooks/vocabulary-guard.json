@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "name": "vocabulary-guard",
+  "description": "Refuse tout mot de Git (B.4) dans les textes d'interface ; en cas d'échec la liste part à l'agent.",
+  "enabled": true,
+  "when": {
+    "type": "fileEdited",
+    "patterns": "packages/ui/**/*.{ts,tsx}"
+  },
+  "then": {
+    "type": "runCode",
+    "command": "node scripts/vocabulary-guard.mjs"
+  }
+}
