@@ -1,0 +1,346 @@
+/* Screen 3 — Compare: virtualized grid on the left, summary and filters on
+   the right. Symbols carry the information; colour only reinforces it. */
+
+.compare-intro {
+  margin: 0 0 1rem;
+  color: var(--ink-soft);
+}
+
+.compare-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20rem;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .compare-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.compare-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.compare-toolbar h3 {
+  margin: 0;
+}
+
+.compare-next {
+  font: inherit;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.compare-next:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.compare-next:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: 2px;
+}
+
+.compare-hint {
+  margin: 0 0 0.6rem;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+}
+
+.comparison-grid {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  overflow: auto;
+  max-height: 28rem;
+}
+
+.comparison-grid__head,
+.difference-row {
+  display: grid;
+  grid-template-columns: 2rem 5rem 5rem 11rem minmax(0, 1fr) 1.5rem minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.4rem 0.6rem;
+}
+
+.comparison-grid__head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.comparison-grid__body {
+  position: relative;
+}
+
+.comparison-grid__slot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+}
+
+.difference-row {
+  height: 40px;
+  border-bottom: 1px dotted var(--line);
+}
+
+.difference-row:hover {
+  background: #f4f1ea;
+}
+
+/* A focus ring that meets WCAG 2.1 AA contrast on the light panel. */
+.difference-row:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: -3px;
+}
+
+.difference-symbol {
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-align: center;
+  color: var(--accent);
+}
+
+/* A recalculated result reads recessed: it is a consequence, not an edit. */
+.difference-row--consequence {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.difference-row--format {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+.difference-sheet,
+.difference-cell,
+.difference-before,
+.difference-after {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.difference-arrow {
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.compare-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.summary-panel,
+.filter-bar,
+.compare-other-parts {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--thread);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 0.9rem 1rem;
+}
+
+.summary-panel h3,
+.filter-bar h3,
+.compare-other-parts h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.summary-headline {
+  margin: 0;
+  font-weight: 600;
+}
+
+.summary-detail-title {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.summary-details {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-actions {
+  margin: 0.75rem 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.summary-copy {
+  font: inherit;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.summary-copy:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: 2px;
+}
+
+.summary-copied {
+  color: var(--thread);
+  font-size: 0.9rem;
+}
+
+.compare-other-parts ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.compare-other-parts p,
+.compare-other-parts li {
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.filter-field select {
+  font: inherit;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.filter-field select:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: 2px;
+}
+
+.filter-nature {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+}
+
+.filter-nature legend {
+  padding: 0 0.3rem;
+  color: var(--ink-soft);
+}
+
+.filter-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.filter-choice input:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: 2px;
+}
+
+.filter-result {
+  margin: 0.6rem 0 0;
+  color: var(--ink-soft);
+}
+
+.compare-state {
+  border-left: 3px solid var(--line);
+  padding: 0.6rem 0 0.6rem 0.85rem;
+  color: var(--ink-soft);
+}
+
+.compare-error-detail {
+  margin: 0.4rem 0 0;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+}
+
+/* The single polite region that announces the focused difference. */
+.compare-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.compare-versions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.compare-versions label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.compare-versions select,
+.compare-versions button {
+  font: inherit;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.compare-versions button {
+  border-color: var(--accent);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.compare-versions select:focus-visible,
+.compare-versions button:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: 2px;
+}
+
+/* No smooth scrolling and no transition when the user asks for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  .comparison-grid {
+    scroll-behavior: auto;
+  }
+
+  .difference-row,
+  .compare-next,
+  .summary-copy {
+    transition: none;
+  }
+}
