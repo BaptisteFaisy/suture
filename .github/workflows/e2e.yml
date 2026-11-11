@@ -50,6 +50,17 @@ jobs:
         shell: bash
         run: pnpm test:e2e
 
+      - name: Publication des artefacts de fumée
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: suture-smoke
+          path: |
+            test-results/combined/
+            test-results/**/error-context.md
+          if-no-files-found: warn
+          retention-days: 7
+
   # Cahier B.11 : le fichier RÉUNI doit s'ouvrir dans une suite bureautique
   # libre sans message d'erreur ni réparation. Le scénario de démonstration
   # (integration/demo-flow.test.ts) produit le classeur réuni réel ; LibreOffice
