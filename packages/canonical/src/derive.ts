@@ -5,6 +5,7 @@
  * order of the entries of the archive, and it never mutates its input.
  */
 import type { CanonicalWorkbook, OoxmlPart, OoxmlParts } from "@suture/contracts";
+import { sortParts } from "@suture/ooxml-io";
 import { resolveFormulaCodec, type FormulaCodec } from "./formula-codec";
 import { CUSTOM_PROPERTIES_PART_PATH, stripSutureProperties } from "./origin-marker";
 import { parseSharedStrings } from "./shared-strings";
@@ -59,8 +60,7 @@ export function deriveCanonical(parts: OoxmlParts, options: DeriveOptions = {}):
  */
 export function normalizeParts(parts: OoxmlParts): Map<string, string> {
   const map = new Map<string, string>();
-  const sorted = [...parts].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
-  for (const part of sorted) {
+  for (const part of sortParts(parts)) {
     map.set(part.path, decodePart(part));
   }
   const custom = map.get(CUSTOM_PROPERTIES_PART_PATH);

@@ -1,11 +1,13 @@
 /**
  * Adapter over `@suture/formula`.
  *
- * The formula package owns the A1 ↔ R1C1 conversion and the reference
- * shifting; this module only normalizes its shapes so the rest of the package
- * never depends on the concrete export style of the codec.
+ * The formula package owns the A1 ↔ L1C1 conversion and the reference shifting.
+ * This module normalizes its export shapes, and falls back to the internal
+ * converter of `fallback-formula.ts` while that package does not expose a codec
+ * yet — so the canonical view never depends on a package still in flight.
  */
 import * as formulaPackage from "@suture/formula";
+import { a1ToR1c1 as fallbackA1ToR1c1, shiftA1 as fallbackShiftA1 } from "./fallback-formula";
 
 /** Result of a formula conversion, whatever the shape of the codec. */
 export interface ConversionResult {
@@ -23,15 +25,23 @@ export interface FormulaCodec {
 type UnknownRecord = Record<string, unknown>;
 type AnyFunction = (...args: unknown[]) => unknown;
 
-const ORIGIN_ERROR =
-  "@suture/formula n'expose pas a1ToR1c1/shiftA1 : dépendance absente ou incompatible.";
+/** Codec built on the internal converter (used when `@suture/formula` is silent). */
+export function fallbackCodec(): FormulaCodec {
+  return {
+    a1ToR1c1: (formula, origin) => ({ formula: fallbackA1ToR1c1(formula, origin), needsCheck: false }),
+    shiftA1: (formula, dRow, dCol) => ({ formula: fallbackShiftA1(formula, dRow, dCol), needsCheck: false }),
+  };
+}
 
-/** Reads the codec exposed by `@suture/formula`. */
+/**
+ * Reads the codec exposed by `@suture/formula`, or the internal fallback when
+ * that package does not export `a1ToR1c1` / `shiftA1` yet.
+ */
 export function resolveFormulaCodec(): FormulaCodec {
   const holder = findHolder(formulaPackage as unknown as UnknownRecord);
   const a1ToR1c1 = pickFunction(holder, "a1ToR1c1");
   const shiftA1 = pickFunction(holder, "shiftA1");
-  if (!a1ToR1c1 || !shiftA1) throw new Error(ORIGIN_ERROR);
+  if (!a1ToR1c1 || !shiftA1) return fallbackCodec();
   return {
     a1ToR1c1: (formula, origin) => normalize(a1ToR1c1(formula, origin), formula),
     shiftA1: (formula, dRow, dCol) => normalize(shiftA1(formula, dRow, dCol), formula),
