@@ -1,0 +1,101 @@
+/* Cell history — the thread of one cell, sober and light. */
+
+.cell-history {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--thread);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 1rem 1.1rem 1.2rem;
+}
+
+.history-count {
+  color: var(--ink-soft);
+  margin: 0 0 0.6rem;
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 1rem;
+  border-left: 2px dashed var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.history-entry {
+  position: relative;
+  padding: 0.1rem 0 0.1rem 0.9rem;
+}
+
+.history-entry::before {
+  content: "";
+  position: absolute;
+  left: -1.42rem;
+  top: 0.45rem;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 2px solid var(--thread);
+}
+
+.history-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0 0 0.2rem;
+}
+
+.history-author {
+  font-weight: 600;
+}
+
+.history-date {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.history-note {
+  margin: 0 0 0.4rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.history-values {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.history-values dt {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+.history-values dd {
+  margin: 0;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.error-note {
+  border-left: 3px solid var(--scar);
+  background: #fdf3f2;
+  padding: 0.6rem 0.8rem;
+  margin: 0.6rem 0;
+}
+
+.cell-history a:focus-visible,
+.cell-history button:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .history-entry::before {
+    transition: none;
+  }
+}
