@@ -1,0 +1,12 @@
+packages:
+  - "packages/*"
+  - "apps/*"
+
+# esbuild ships its binary as a platform package (@esbuild/*): the postinstall
+# script is a no-op verification. Declared as intentionally ignored so
+# `pnpm install` stays clean and deterministic (supply-chain hygiene).
+allowBuilds:
+  esbuild: true
+
+ignoredBuiltDependencies:
+  - esbuild

@@ -1,0 +1,16 @@
+{
+  "name": "@suture/ooxml-io",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Zip/unzip OOXML parts, limits and file refusal.",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@suture/contracts": "workspace:*",
+    "fflate": "^0.8.2",
+    "saxes": "^6.0.0",
+    "zod": "^4.0.0"
+  }
+}

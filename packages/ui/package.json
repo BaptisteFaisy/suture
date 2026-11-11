@@ -1,0 +1,15 @@
+{
+  "name": "@suture/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reusable UI components, theme and i18n (en/fr).",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@suture/contracts": "workspace:*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}

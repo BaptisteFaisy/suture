@@ -1,0 +1,13 @@
+{
+  "name": "@suture/diff",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Row/column alignment and typed ChangeSet computation.",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@suture/contracts": "workspace:*"
+  }
+}
