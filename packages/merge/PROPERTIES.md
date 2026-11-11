@@ -8,12 +8,40 @@ Properties verified with fast-check, and every counterexample they found.
 | **SUT-P-07** | Two sides touching disjoint cells never disagree. | 80 | Verified |
 | **SUT-P-08** | Every change the other side brought is applied, decided, or listed in the report — never absent. | 80 | Verified |
 | **SUT-P-09** | `combine(O, A, B)` and `combine(O, B, A)` give the same disagreements, with their sides swapped (B.13). | 80 | Verified |
+| **SUT-F-24** | Two-way mode (no known origin): every address where the two files differ is accounted for — exactly one decision per address, or a report line naming it (address, row, column, sheet); `planTwoWay(X, X)` decides and reports nothing. | 120 × 3 | Verified |
 
 The four structural cases of B.8 are covered by unit tests
 (`src/cases.test.ts`): cell-by-cell merge, one side changed the structure
 (the other side's change is carried onto the carrier's row), identical
 structural changes, and the safe fallback when both sides changed the
 structure differently.
+
+## Two-way mode (SUT-F-24, `src/two-way.ts`)
+
+When no common origin is known, none is invented: `planTwoWay(A, B)` compares
+the two files and hands **every** difference to the user. Side A carries (it is
+the file that gets patched), `patches` stays empty, and each disagreement has
+`base: null` — there is no third version to fall back on. What cannot become a
+decision is named in the report instead: a sheet, a row or a column only one
+side has, a cell whose address the carrier does not have, a sheet name or
+visibility that differs, a defined name that differs.
+
+The property (`src/two-way.prop.test.ts`) checks, over 120 runs of three
+statements, that for two files drawn from the shared generators — with, half of
+the time, a sheet only side B has:
+
+1. every address where the two files differ is accounted for: one decision
+   carrying that address, or a report line naming it by address, by row, by
+   column or by sheet;
+2. no address carries two decisions (identifiers are unique) and none is both
+   decided and named by a report line;
+3. `planTwoWay(X, X)` yields no decision, no patch and no report line.
+
+Measured over 1 000 runs (one local session): 2 544 differing addresses, all
+accounted for — 2 227 by a decision, 97 by a report line naming the address,
+442 covered by a structural line (row, column or sheet); the two kinds of
+coverage overlap on 222 addresses (a cell of a column only one side has is
+named twice: once by its address, once by its column).
 
 ## Counterexamples found and fixed
 
@@ -46,3 +74,8 @@ structure differently.
 - A change whose row or column disappeared in the carrier cannot be applied
   automatically: it is listed in the report as *not carried over*, with the
   address, so the user can apply it by hand. Nothing disappears silently.
+- Two-way mode has no origin to arbitrate the structure: a sheet, a row or a
+  column only one side has is never moved automatically — it is named in the
+  report, and only the cell differences of the sheets both files have become
+  decisions. The decisions are written into side A, the carrier; the existing
+  `resolveMerge` applies them unchanged.
