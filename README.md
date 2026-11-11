@@ -15,8 +15,31 @@ workbook ever leaves your machine.
 ## Live demo
 
 **https://baptistefaisy.github.io/suture/** — click **"Load the demo
-workbook"**: a tracked workbook with three versions and one divergent scenario
-is ready to compare and combine in under two minutes. No account, no upload.
+workbook"**: a tracked workbook with three versions and two divergent scenarios
+is ready to compare and combine in under two minutes. No account, no upload,
+nothing leaves the browser.
+
+The demo case is the one from the brief: Nadia sends `budget_2026.xlsx` on
+Monday; on Thursday she gets back `budget_2026_paul.xlsx` (three amounts
+corrected, one row added) and `budget_2026_v2_marie_FINAL.xlsx` (one assumption
+changed, and one of the same amounts corrected differently). Suture applies
+everything that does not compete, shows the single disagreement with the
+original value and both sides, and hands back a workbook that opens in Excel
+without a repair prompt.
+
+## Current state
+
+| | |
+|---|---|
+| Engines | `ooxml-io`, `canonical`, `formula`, `diff`, `merge`, `ooxml-patch`, `git-store` — all implemented and tested |
+| Screens | home, workbook (history thread, scenarios, milestones, restore, export), compare (virtualized grid, summary, filters), combine (three-step assistant, disagreements, safe fallback, report), cell history, settings |
+| Tests | 362 tests, including the twelve properties SUT-P-01…SUT-P-12 (fast-check) |
+| CI | four controls (types, lint, tests, build) in two parallel jobs, each under the five-minute budget, on self-hosted runners |
+| Acceptance | `node scripts/check-contest.mjs` — every automated point of the contest checklist is green |
+| Kiro usage | `.kiro/steering` (7 files), `.kiro/specs` (8 specs), `.kiro/hooks` (4), `.kiro/agents` (2), `.kiro/skills` (1) — recorded in `KIRO_JOURNAL.md` |
+
+Manual acceptance checklist: `docs/RECETTE.md`. Video script: `docs/VIDEO-SCRIPT.md`.
+
 
 ## What it does
 
