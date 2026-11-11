@@ -1,0 +1,17 @@
+{
+  "name": "Inline strings",
+  "output": "inline-strings.xlsx",
+  "options": {
+    "sharedStrings": false
+  },
+  "sheets": [
+    {
+      "name": "Textes",
+      "cells": [
+        { "ref": "A1", "value": "Written inline" },
+        { "ref": "A2", "value": "Written inline" },
+        { "ref": "B1", "value": "No shared table here" }
+      ]
+    }
+  ]
+}
