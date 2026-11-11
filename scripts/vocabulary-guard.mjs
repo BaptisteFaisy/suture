@@ -45,9 +45,73 @@ function walk(dir, files = []) {
   return files;
 }
 
+/**
+ * Mask comments (keep their length) so the scan only looks at real code:
+ * a mention of a package name inside a doc comment is not user-visible text.
+ */
+function maskComments(source) {
+  let out = "";
+  let state = "code";
+  let quote = "";
+  for (let i = 0; i < source.length; i += 1) {
+    const ch = source[i];
+    const next = source[i + 1] ?? "";
+    if (state === "code") {
+      if (ch === "/" && next === "/") {
+        state = "line";
+        out += "  ";
+        i += 1;
+        continue;
+      }
+      if (ch === "/" && next === "*") {
+        state = "block";
+        out += "  ";
+        i += 1;
+        continue;
+      }
+      if (ch === '"' || ch === "'" || ch === "`") {
+        state = "string";
+        quote = ch;
+      }
+      out += ch;
+      continue;
+    }
+    if (state === "string") {
+      out += ch;
+      if (ch === "\\") {
+        out += next;
+        i += 1;
+      } else if (ch === quote) {
+        state = "code";
+      }
+      continue;
+    }
+    if (state === "line") {
+      if (ch === "\n") {
+        state = "code";
+        out += ch;
+      } else {
+        out += " ";
+      }
+      continue;
+    }
+    if (state === "block") {
+      if (ch === "*" && next === "/") {
+        state = "code";
+        out += "  ";
+        i += 1;
+      } else {
+        out += ch === "\n" ? "\n" : " ";
+      }
+    }
+  }
+  return out;
+}
+
 /** Extracts string literals and JSX text chunks with their line numbers. */
 function extractStrings(source) {
   const chunks = [];
+  const code = maskComments(source);
   const patterns = [
     /"((?:[^"\\\n]|\\.)*)"/g, // "..." string literals
     /'((?:[^'\\\n]|\\.)*)'/g, // '...' string literals
@@ -55,10 +119,10 @@ function extractStrings(source) {
     />([^<>{}]+)</g, // JSX text nodes
   ];
   for (const pattern of patterns) {
-    for (const match of source.matchAll(pattern)) {
+    for (const match of code.matchAll(pattern)) {
       const text = match[1] ?? "";
       if (text.trim().length === 0) continue;
-      const line = source.slice(0, match.index).split("\n").length;
+      const line = code.slice(0, match.index).split("\n").length;
       chunks.push({ text, line });
     }
   }
