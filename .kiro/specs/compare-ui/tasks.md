@@ -1,0 +1,21 @@
+# Tasks: Compare UI (Design-First)
+
+- [ ] 1. Add the view types to `@suture/contracts` (`ChangeNature`, `CellChangeView`, `StructureChangeView`, `CompareView`, `HistoryEntryView`) and freeze them — 45 min
+- [ ] 2. Scaffold the compare feature folder, i18n messages (en, fr) and locale formatters for numbers and dates — 45 min
+- [ ] 3. Implement `useVirtualWindow.ts` (row + column windowing, overscan) with unit tests on the math — 45 min
+- [ ] 4. Implement `ChangeGrid.tsx` shell: header row, sticky column, structure bands, empty state "These two versions are identical." — 1 h
+- [ ] 5. Implement `GridRow.tsx` and `ChangeCell.tsx`: symbol gutter `+` / `−` / `~`, before → after rendering, recessed style for recalculated results — 1 h
+- [ ] 6. Implement `FilterBar.tsx`: sheet filter and nature filter (typed, recalculated, structure, format hidden by default) wired to one shared filter function — 45 min
+- [ ] 7. Implement `SummaryPanel.tsx`: deterministic summary builder, `role="status"` accessible name, copy-as-text button, counts always derived from the filtered set — 1 h
+- [ ] 8. Implement `useDifferenceNavigation.ts`: next/previous difference, wrap-around, `scrollToRow`, debounced polite live-region announcements — 45 min
+- [ ] 9. Implement `OtherPartsList.tsx` for charts, pivot tables, macros and styles with changed/identical state (SUT-F-15) — 30 min
+- [ ] 10. Implement `CompareScreen.tsx`: version selection, loading states, error state "Comparison unavailable" with retry — 45 min
+- [ ] 11. Implement `CellHistoryDrawer.tsx`: fetch via `git-store.cellHistory`, newest first, focus trap, `Escape` close, focus restore to the originating cell — 1 h
+- [ ] 12. Implement `HistoryEntry.tsx` and the explicit empty state "No change recorded for <ref>." — 30 min
+- [ ] 13. Accessibility pass: roving tabindex, arrow/Home/End/PageUp/PageDown keys, `Enter` opens history, aria-labels on symbols, contrast audit of the palette — 1 h
+- [ ] 14. Implement `prefers-reduced-motion` handling (transitions and smooth scroll disabled) with a component test — 30 min
+- [ ] 15. Tests: summary determinism golden strings in en and fr, filter pipeline counts, symbol/aria mapping, locale number and date formatting — 1 h
+- [ ] 16. Tests: keyboard traversal with wrap-around, live-region announcement content, drawer focus trap and restore — 45 min
+- [ ] 17. Vocabulary test: render both locales and assert zero banned terms; verify the `vocabulary-guard` hook covers `packages/ui/**` — 30 min
+- [ ] 18. Performance check: synthetic 200,000-cell ChangeSet scrolls without blocking the main thread over 100 ms (Playwright, outside PR CI) — 45 min
+- [ ] 19. Final review: files < 500 lines, functions < 50 lines, shared virtual-window helper not duplicated, full suite green — 30 min
