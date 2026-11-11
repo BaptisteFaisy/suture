@@ -1,0 +1,21 @@
+{
+  "name": "Macro workbook",
+  "output": "macro-xlsm.xlsm",
+  "options": {
+    "sharedStrings": true,
+    "macro": true
+  },
+  "sheets": [
+    {
+      "name": "Suivi",
+      "cells": [
+        { "ref": "A1", "value": "Poste" },
+        { "ref": "B1", "value": "Montant" },
+        { "ref": "A2", "value": "Loyer" },
+        { "ref": "B2", "value": 13500, "format": "#,##0 €" },
+        { "ref": "A3", "value": "Total" },
+        { "ref": "B3", "formula": "SUM(B2:B2)", "cached": 13500, "format": "#,##0 €" }
+      ]
+    }
+  ]
+}
