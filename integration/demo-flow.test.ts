@@ -90,6 +90,12 @@ async function combineDemo() {
     originMarker: { versionId: carrierId, scenario: plan.carrier },
   });
   const combined = zipParts(patched.parts);
+  // Fumée LibreOffice (cahier B.11) : quand le script appelant le demande,
+  // le classeur réuni est écrit sur disque pour être ouvert par la suite
+  // bureautique libre (job `soffice-smoke` de la CI).
+  if (process.env.SUTURE_COMBINED_OUT) {
+    fs.writeFileSync(process.env.SUTURE_COMBINED_OUT, combined);
+  }
   return {
     plan,
     combined,
