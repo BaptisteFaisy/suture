@@ -62,7 +62,7 @@ MARK = "<!-- test-agent sha=%s -->"
 INFRA = "OUTILLAGE: "
 LABEL_OK = "agent-test"
 LABEL_HUMAN = "intervention-humaine"
-PREFIXE = "_fireworks · agent de test (zeroclaw `fw`)_"
+PREFIXE = "_inferhub · agent de test (zeroclaw `fw`)_"
 MOTIFS_JOURNAL = ("FAILED", "AssertionError", "Expected", "expected:",
                   "e: file", "error:", "Error:", "Caused by", "Caused by:",
                   "Tests failed", "> Task", "Traceback", "File \"",
@@ -76,7 +76,7 @@ def _charger(nom):
     except ImportError:
         pass
     try:
-        proc = subprocess.run(["git", "show", "origin/main:.github/fireworks/"
+        proc = subprocess.run(["git", "show", "origin/main:.github/inferhub/"
                                "%s.py" % nom], capture_output=True, text=True,
                               timeout=60)
     except (OSError, subprocess.SubprocessError):

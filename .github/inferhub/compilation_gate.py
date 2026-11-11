@@ -37,7 +37,7 @@ MARK_AGENT = "<!-- agent-conflit sha=%s -->"
 
 
 def _log(message):
-    print("fireworks-agent: %s" % message, flush=True)
+    print("inferhub-agent: %s" % message, flush=True)
 
 
 def fichiers_modifies(base="origin/main"):

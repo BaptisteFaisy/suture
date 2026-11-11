@@ -91,16 +91,16 @@ jobs:
           echo "garde concours OK"
 
       # Les gardes de la CI se testent elles-mêmes : couche0 + agents
-      # fireworks — stdlib, quelques secondes, aucun réseau.
-      - name: Tests des gardes CI (couche0, fireworks)
+      # inferhub — stdlib, quelques secondes, aucun réseau.
+      - name: Tests des gardes CI (couche0, inferhub)
         shell: bash
         run: |
           python3 .github/couche0/test_check_couche0.py
-          python3 .github/fireworks/test_conflict_agent.py
-          python3 .github/fireworks/test_test_agent.py
-          python3 .github/fireworks/test_scope_agent.py
-          python3 .github/fireworks/test_union_journal.py
-          python3 .github/fireworks/test_quota.py
+          python3 .github/inferhub/test_conflict_agent.py
+          python3 .github/inferhub/test_test_agent.py
+          python3 .github/inferhub/test_scope_agent.py
+          python3 .github/inferhub/test_union_journal.py
+          python3 .github/inferhub/test_quota.py
 
   build:
     name: build

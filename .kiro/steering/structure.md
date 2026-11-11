@@ -8,7 +8,7 @@ _Always included. File layout, naming conventions, imports._
 .
 ├── .github/
 │   ├── couche0/           # anti-regression guard (inherited from vision)
-│   ├── fireworks/         # conflict resolver agent (MiniMax via A2A/Fireworks)
+│   ├── inferhub/         # conflict resolver agent (InferHub, combo/cheap)
 │   ├── ci-budget/         # 5 min timeout enforcement
 │   └── workflows/
 │       ├── ci.yml         # typecheck, lint, test, build, guards (timeout 5m)

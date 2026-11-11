@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Agent de périmètre Fireworks pour la file pr-auto-merge.
+"""Agent de périmètre InferHub pour la file pr-auto-merge.
 
 Une PR dont le corps n'a pas de `## Scope`, ou dont la section ne couvre pas
 tous les fichiers modifiés, est refusée par `couche0` : le balayeur la voit
 `BLOCKED` et, sans ce script, la laisse pourrir — c'est exactement ce qui est
 arrivé aux PR d'auteur (Gaïa, 29/10).
 
-Ici un modèle Fireworks lit le diff et rédige une puce
+Ici un modèle InferHub lit le diff et rédige une puce
 ``- `chemin` — raison`` par fichier, en français. Le script vérifie le corps
 recomposé avec le garde de `main` lui-même (importé, jamais réécrit) avant
 de l'écrire : tout fichier non déclaré et toute déclaration inutile restent
@@ -15,7 +15,7 @@ manquante qui est écrite, avec une raison tirée du diff.
 
 Bibliothèque standard uniquement. Usage :
 
-  FIREWORKS_API_KEY=... python3 scope_agent.py fix \\
+  INFERHUB_API_KEY=... python3 scope_agent.py fix \\
       --repo BaptisteFaisy/suture --pr 215 --sha <tête> \\
       --guard /tmp/check_couche0.py
 
@@ -33,15 +33,15 @@ import subprocess
 import sys
 import urllib.request
 
-MODEL_DEFAULT = "accounts/fireworks/models/minimax-m3p1-flash"
-API_DEFAULT = "https://api.fireworks.ai/inference/v1/chat/completions"
+MODEL_DEFAULT = "combo/cheap"
+API_DEFAULT = "https://api.inferhub.dev/v1/chat/completions"
 MAX_FILES = 25
 MAX_EXCERPT_CHARS = 600
 MAX_EXCERPT_LINES = 5
 MAX_TOKENS = 3_000
 TEMPERATURE = 0.1
 CALL_TIMEOUT_S = 90
-COMMENT_PREFIX = "_fireworks · agent de périmètre (MiniMax M3.1 Flash)_"
+COMMENT_PREFIX = "_inferhub · agent de périmètre (combo/cheap)_"
 MARKER = "<!-- automerge-scope sha=%s -->"
 LABEL_HUMAN = "intervention-humaine"
 PUCE = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+`?([^`\s]+)`?"
@@ -62,7 +62,7 @@ def log(message):
 
 def env_or(name, default):
     """Variable d'env ou défaut. GitHub injecte une var absente comme ""
-    (et non unset) : `os.environ.get(n, d)` rendrait "" → 400 Fireworks."""
+    (et non unset) : `os.environ.get(n, d)` rendrait "" → 400 InferHub."""
     return os.environ.get(name) or default
 
 
@@ -152,7 +152,7 @@ def messages_pour(pr, fichiers, necessaires, relance=False):
 
 
 def fw_complete(api_url, key, model, messages):
-    """Un appel chat/completions Fireworks, rend le texte réponse."""
+    """Un appel chat/completions InferHub, rend le texte réponse."""
     payload = json.dumps({"model": model, "messages": messages,
                           "temperature": TEMPERATURE,
                           "max_tokens": MAX_TOKENS}).encode("utf-8")
@@ -163,11 +163,11 @@ def fw_complete(api_url, key, model, messages):
         with urllib.request.urlopen(req, timeout=CALL_TIMEOUT_S) as resp:
             data = json.loads(resp.read().decode("utf-8"))
     except Exception as exc:                                   # noqa: BLE001
-        raise AgentError("appel Fireworks : %s" % str(exc)[:200])
+        raise AgentError("appel InferHub : %s" % str(exc)[:200])
     try:
         return data["choices"][0]["message"]["content"]
     except (KeyError, IndexError, TypeError):
-        raise AgentError("réponse Fireworks illisible (pas de choices[0])")
+        raise AgentError("réponse InferHub illisible (pas de choices[0])")
 
 
 def raisons_repondue(texte):
@@ -281,13 +281,13 @@ def ecrire_corps(repo, pr, corps):
 
 def verifier_reglages():
     """Clés et coupe-circuit ; lève Skip si l'agent doit se taire."""
-    key = env_or("FIREWORKS_API_KEY", "")
-    if env_or("FIREWORKS_AGENT_SCOPE", "1") == "0":
-        raise Skip("agent de périmètre coupé (FIREWORKS_AGENT_SCOPE=0)")
+    key = env_or("INFERHUB_API_KEY", "")
+    if env_or("INFERHUB_AGENT_SCOPE", "1") == "0":
+        raise Skip("agent de périmètre coupé (INFERHUB_AGENT_SCOPE=0)")
     if not key:
-        raise Skip("FIREWORKS_API_KEY absent : périmètre laissé à l'auteur")
-    return (key, env_or("FIREWORKS_MODEL", MODEL_DEFAULT),
-            env_or("FIREWORKS_BASE_URL", API_DEFAULT))
+        raise Skip("INFERHUB_API_KEY absent : périmètre laissé à l'auteur")
+    return (key, env_or("INFERHUB_MODEL", MODEL_DEFAULT),
+            env_or("INFERHUB_BASE_URL", API_DEFAULT))
 
 
 def contexte(args, garde):
