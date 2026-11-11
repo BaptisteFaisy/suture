@@ -42,8 +42,10 @@ export interface WorkbookFixture {
   numberFormats?: Record<string, string>;
   /** Number format id of each cell format (`cellXfs`), in order. */
   cellFormats?: number[];
-  /** Defined names of the workbook. */
+  /** Defined names of the workbook (name only, workbook-scoped). */
   definedNames?: string[];
+  /** Raw `<definedName>` elements, for scoped names. */
+  definedNamesXml?: string;
   /** Extra parts, appended as-is. */
   extraParts?: OoxmlPart[];
 }
@@ -89,9 +91,11 @@ function workbookXml(fixture: WorkbookFixture): string {
       return `<sheet name="${sheet.name}" sheetId="${sheet.sheetId}" r:id="rId${index + 1}"${state}/>`;
     })
     .join("");
-  const names = (fixture.definedNames ?? [])
-    .map((name) => `<definedName name="${name}">${name}!$A$1</definedName>`)
-    .join("");
+  const names =
+    fixture.definedNamesXml ??
+    (fixture.definedNames ?? [])
+      .map((name) => `<definedName name="${name}">${name}!$A$1</definedName>`)
+      .join("");
   const defined = names === "" ? "" : `<definedNames>${names}</definedNames>`;
   return `<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheets}</sheets>${defined}</workbook>`;
 }

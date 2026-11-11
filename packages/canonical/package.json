@@ -8,8 +8,6 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@suture/contracts": "workspace:*",
-    "@suture/formula": "workspace:*",
-    "@suture/ooxml-io": "workspace:*"
+    "@suture/contracts": "workspace:*"
   }
 }

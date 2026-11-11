@@ -9,12 +9,10 @@ import {
   serializeCellsTsv,
   serializeWorkbookJson,
   unescapeTsvValue,
-} from "../src/index";
-import type { SheetMeta } from "../src/index";
-import { buildWorkbookParts, text } from "./generators";
-import { createTestFormulaCodec } from "./test-codec";
+} from "./index";
+import type { SheetMeta } from "./index";
+import { buildWorkbookParts, text } from "../test/generators";
 
-const codec = createTestFormulaCodec();
 
 const SHEET: SheetMeta = {
   sheetId: 1,
@@ -27,7 +25,7 @@ const SHEET: SheetMeta = {
 /** Derives the cells of a single-sheet workbook. */
 function cellsOf(rows: string, options: Parameters<typeof buildWorkbookParts>[0] = { sheets: [] }) {
   const fixture = { ...options, sheets: [{ name: "Sheet1", sheetId: 1, rows }] };
-  return deriveCanonical(buildWorkbookParts(fixture), { codec }).sheets[0]?.cells ?? [];
+  return deriveCanonical(buildWorkbookParts(fixture)).sheets[0]?.cells ?? [];
 }
 
 describe("cells/*.tsv escaping and round-trip", () => {
@@ -72,7 +70,7 @@ describe("deriveCanonical — values", () => {
       ],
       sharedStrings: [{ text: "Simple" }, { runs: ["Rich", " ", "Text"] }],
     });
-    const canonical = deriveCanonical(parts, { codec });
+    const canonical = deriveCanonical(parts);
     expect(canonical.sheets[0]?.cells).toEqual([
       { ref: "A1", kind: "s", input: "Simple", cached: "", fmt: "" },
       { ref: "B1", kind: "s", input: "Rich Text", cached: "", fmt: "" },
@@ -187,7 +185,7 @@ describe("deriveCanonical — workbook", () => {
       ],
       definedNames: ["Total", "Rate"],
     });
-    const canonical = deriveCanonical(parts, { codec });
+    const canonical = deriveCanonical(parts);
     expect(canonical.meta.sheets.map((sheet) => [sheet.name, sheet.state, sheet.order])).toEqual([
       ["Visible", "visible", 0],
       ["Hidden", "hidden", 1],
@@ -211,6 +209,25 @@ describe("deriveCanonical — workbook", () => {
 
 });
 
+describe("deriveCanonical — defined names", () => {
+  it("maps a sheet-scoped name to the stable sheetId", () => {
+    const parts = buildWorkbookParts({
+      sheets: [
+        { name: "Budget", sheetId: 4, rows: "" },
+        { name: "Hypotheses", sheetId: 9, rows: "" },
+      ],
+      definedNamesXml:
+        '<definedName name="TVA">0.2</definedName>' +
+        '<definedName name="Zone" localSheetId="1">Hypotheses!$A$1:$A$9</definedName>',
+    });
+    const names = deriveCanonical(parts).meta.definedNames;
+    expect(names).toEqual([
+      { name: "TVA", formula: "0.2" },
+      { name: "Zone", formula: "Hypotheses!$A$1:$A$9", sheetId: 9 },
+    ]);
+  });
+});
+
 describe("deriveCanonical — parts", () => {
   it("names worksheet parts from the relationships, not from sheet1.xml", () => {
     const parts = buildWorkbookParts({
@@ -223,7 +240,7 @@ describe("deriveCanonical — parts", () => {
         },
       ],
     });
-    const canonical = deriveCanonical(parts, { codec });
+    const canonical = deriveCanonical(parts);
     expect(canonical.meta.sheets[0]?.path).toBe("xl/worksheets/sheet9.xml");
     expect(canonical.sheets[0]?.cells).toHaveLength(1);
   });
@@ -242,7 +259,7 @@ describe("deriveCanonical — parts", () => {
       extraParts: [{ path: "docProps/custom.xml", data: text(custom) }],
     });
     const clean = buildWorkbookParts({ sheets: [{ name: "S", sheetId: 1, rows }] });
-    expect(deriveCanonical(withMarker, { codec })).toEqual(deriveCanonical(clean, { codec }));
+    expect(deriveCanonical(withMarker)).toEqual(deriveCanonical(clean));
   });
 });
 

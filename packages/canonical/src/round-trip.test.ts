@@ -2,11 +2,9 @@
  * Round-trip of the canonical view: derive -> serialize -> parse.
  */
 import { describe, expect, it } from "vitest";
-import { deriveCanonical, parseCellsTsv, serializeCellsTsv } from "../src/index";
-import { buildWorkbookParts } from "./generators";
-import { createTestFormulaCodec } from "./test-codec";
+import { deriveCanonical, parseCellsTsv, serializeCellsTsv } from "./index";
+import { buildWorkbookParts } from "../test/generators";
 
-const codec = createTestFormulaCodec();
 
 const ROWS =
   '<row r="1">' +
@@ -36,7 +34,7 @@ function fixtureParts() {
 
 describe("canonical round-trip", () => {
   it("derives, serializes and parses back the very same cells", () => {
-    const sheet = deriveCanonical(fixtureParts(), { codec }).sheets[0];
+    const sheet = deriveCanonical(fixtureParts()).sheets[0];
     expect(sheet).toBeDefined();
     const tsv = serializeCellsTsv(sheet!);
     const parsed = parseCellsTsv(tsv);
@@ -45,21 +43,21 @@ describe("canonical round-trip", () => {
   });
 
   it("escapes the special characters of a shared string", () => {
-    const sheet = deriveCanonical(fixtureParts(), { codec }).sheets[0]!;
+    const sheet = deriveCanonical(fixtureParts()).sheets[0]!;
     const line = serializeCellsTsv(sheet).split("\n")[1];
     expect(line).toBe("B1\ts\tTab\\there\\nand\\\\back\t\t");
     expect(parseCellsTsv(`${line}\n`)[0]?.input).toBe("Tab\there\nand\\back");
   });
 
   it("keeps the numeric sort and drops the style-only cell", () => {
-    const sheet = deriveCanonical(fixtureParts(), { codec }).sheets[0]!;
+    const sheet = deriveCanonical(fixtureParts()).sheets[0]!;
     expect(sheet.cells.map((cell) => cell.ref)).toEqual([
       "A1", "B1", "C1", "D1", "E1", "B2", "AA10",
     ]);
   });
 
   it("reads the ISO date cell and the cached formula value", () => {
-    const cells = deriveCanonical(fixtureParts(), { codec }).sheets[0]!.cells;
+    const cells = deriveCanonical(fixtureParts()).sheets[0]!.cells;
     expect(cells.find((cell) => cell.ref === "E1")).toMatchObject({ kind: "s", input: "2026-11-11" });
     expect(cells.find((cell) => cell.ref === "B2")).toMatchObject({
       kind: "f",
