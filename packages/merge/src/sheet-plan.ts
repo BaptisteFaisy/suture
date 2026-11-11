@@ -112,9 +112,37 @@ function decideCell(
   carrierSide: Side,
 ): { patch?: CellPatch; disagreement?: Disagreement; report?: ReportEntry } {
   const side = otherSide(carrierSide);
+  // A recalculated result is not something a person typed: the combined file
+  // asks the spreadsheet to recalculate on opening, so the cached value is
+  // never carried. It is reported, never turned into a disagreement.
+  if (change.kind === "consequence") {
+    return {
+      report: {
+        category: "not-carried",
+        side,
+        sheetName,
+        ref: change.ref,
+        label: "Recalculated result — the spreadsheet recalculates it when the file opens",
+      },
+    };
+  }
   if (change.kind === "format") {
     return {
       report: { category: "not-carried", side, sheetName, ref: change.ref, label: "Format change" },
+    };
+  }
+  // A recalculated result is not something a person typed: the combined file
+  // drops the calculation chain and asks the spreadsheet to recalculate on
+  // opening, so the cached value is never carried — but it is reported.
+  if (change.kind === "consequence") {
+    return {
+      report: {
+        category: "not-carried",
+        side,
+        sheetName,
+        ref: change.ref,
+        label: "Recalculated result — the spreadsheet recalculates it when the file is opened",
+      },
     };
   }
   const target = map.mapRef(change.ref);
