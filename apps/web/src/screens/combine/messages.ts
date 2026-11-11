@@ -3,6 +3,13 @@ import { makeTranslator, type Lang } from "../../i18n/lang";
 /** Messages of this screen only — each screen owns its dictionary. */
 export const screenMessages: Record<Lang, Record<string, string>> = {
   en: {
+    "picker.title": "Combine two scenarios of this workbook",
+    "picker.first": "First side",
+    "picker.second": "Second side",
+    "picker.choose": "Choose…",
+    "picker.reference": "Reference",
+    "picker.start": "Start the combine",
+    "picker.needTwo": "A combine needs at least two scenarios: create one from the workbook screen first.",
     "title": "Combine two versions",
     "subtitle":
       "One question at a time: what applies on its own, the disagreements to settle, then the report.",
@@ -81,6 +88,13 @@ export const screenMessages: Record<Lang, Record<string, string>> = {
     "aria.report": "Report of the meeting",
   },
   fr: {
+    "picker.title": "Réunir deux scénarios de ce classeur",
+    "picker.first": "Premier côté",
+    "picker.second": "Second côté",
+    "picker.choose": "Choisir…",
+    "picker.reference": "Référence",
+    "picker.start": "Lancer la réunion",
+    "picker.needTwo": "Une réunion demande au moins deux scénarios : créez-en un depuis l'écran du classeur.",
     "title": "Réunir deux versions",
     "subtitle":
       "Une question à la fois : ce qui s'applique seul, les désaccords à trancher, puis le rapport.",

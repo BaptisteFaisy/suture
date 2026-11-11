@@ -43,9 +43,11 @@ export function App() {
   };
 
   // The real store: the engines and the browser host are injected once.
-  const engines = useMemo(() => createBrowserEngines(), []);
-  const host = useMemo(() => createBrowserHost(), []);
-  const store = useRealStore({ engines, host });
+  const deps = useMemo(
+    () => ({ engines: createBrowserEngines(), host: createBrowserHost() }),
+    [],
+  );
+  const store = useRealStore(deps, lang);
   const t = (key: string) => translateCommon(lang, key);
   const renderScreen = SCREENS[screen];
 

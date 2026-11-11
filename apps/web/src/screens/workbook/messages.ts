@@ -7,6 +7,8 @@ import type { Lang } from "../../i18n/lang";
  */
 export const screenMessages: Record<Lang, Record<string, string>> = {
   en: {
+    "action.compare": "Compare two versions",
+    "action.combine": "Combine two scenarios",
     "title": "Versions and scenarios",
     "subtitle":
       "Every version stays on the thread. Nothing is erased: restoring adds a new version.",
@@ -52,6 +54,8 @@ export const screenMessages: Record<Lang, Record<string, string>> = {
     "status.referenceSet": "The reference has changed.",
   },
   fr: {
+    "action.compare": "Comparer deux versions",
+    "action.combine": "Réunir deux scénarios",
     "title": "Versions et scénarios",
     "subtitle":
       "Chaque version reste sur le fil. Rien n'est effacé : une restauration ajoute une nouvelle version.",

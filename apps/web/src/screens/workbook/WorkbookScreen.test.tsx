@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { LangContext } from "../../i18n/lang";
+import { NavigationContext } from "../../router";
 import { StoreContext, type StoreAdapter, type VersionSummary } from "../../store";
 import { WorkbookScreen } from "./WorkbookScreen";
 
@@ -84,11 +85,13 @@ function fakeStore(overrides: Partial<StoreAdapter> = {}): StoreAdapter {
 
 function renderScreen(store: StoreAdapter, lang: "en" | "fr" = "en") {
   const tree: ReactElement = (
+    <NavigationContext.Provider value={{ screen: "workbook", params: {}, go: () => undefined, back: () => undefined }}>
     <LangContext.Provider value={{ lang, setLang: () => undefined }}>
       <StoreContext.Provider value={store}>
         <WorkbookScreen />
       </StoreContext.Provider>
     </LangContext.Provider>
+    </NavigationContext.Provider>
   );
   return render(tree);
 }

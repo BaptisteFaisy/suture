@@ -5,6 +5,7 @@ import { translateScreen } from "./messages";
 import { StepOne } from "./StepOne";
 import { StepTwo } from "./StepTwo";
 import { StepThree } from "./StepThree";
+import { ScenarioPicker } from "./ScenarioPicker";
 import { TwoFileAssistant } from "./TwoFileAssistant";
 import {
   canBuildReport,
@@ -35,6 +36,13 @@ export function CombineScreen() {
       <section className="screen" aria-labelledby="combine-title">
         <h2 id="combine-title">{t("title")}</h2>
         <p className="step-hint">{t("subtitle")}</p>
+        <ScenarioPicker
+          scenarios={store.scenarios}
+          t={t}
+          onStart={(sideA, sideB) => {
+            void store.startCombine(sideA, sideB).then(() => setStep(1));
+          }}
+        />
         <TwoFileAssistant onStarted={() => setStep(1)} />
       </section>
     );

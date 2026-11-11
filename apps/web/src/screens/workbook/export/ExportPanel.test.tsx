@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { LangContext } from "../../../i18n/lang";
+import { NavigationContext } from "../../../router";
 import { StoreContext, type StoreAdapter } from "../../../store";
 import { WorkbookScreen } from "../WorkbookScreen";
 import { ExportPanel } from "./ExportPanel";
@@ -49,11 +50,13 @@ function renderPanel(props: {
 }) {
   const lang = props.lang ?? "en";
   const tree: ReactElement = (
+    <NavigationContext.Provider value={{ screen: "workbook", params: {}, go: () => undefined, back: () => undefined }}>
     <LangContext.Provider value={{ lang, setLang: () => undefined }}>
       <StoreContext.Provider value={props.store}>
         <ExportPanel store={props.store} lang={lang} available={props.available ?? true} />
       </StoreContext.Provider>
     </LangContext.Provider>
+    </NavigationContext.Provider>
   );
   return render(tree);
 }
@@ -133,11 +136,13 @@ describe("ExportPanel — languages", () => {
       scenarios: [{ name: "reference", reference: true, head: "v1" }],
     });
     const tree: ReactElement = (
+      <NavigationContext.Provider value={{ screen: "workbook", params: {}, go: () => undefined, back: () => undefined }}>
       <LangContext.Provider value={{ lang: "en", setLang: () => undefined }}>
         <StoreContext.Provider value={openStore}>
           <WorkbookScreen />
         </StoreContext.Provider>
       </LangContext.Provider>
+      </NavigationContext.Provider>
     );
     render(tree);
     expect(screen.getByRole("heading", { name: "Export for developers" })).toBeTruthy();

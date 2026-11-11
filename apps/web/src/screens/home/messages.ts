@@ -3,6 +3,7 @@ import { makeTranslator, type Lang } from "../../i18n/lang";
 /** Messages of this screen only — each screen owns its dictionary. */
 export const screenMessages: Record<Lang, Record<string, string>> = {
   en: {
+    "state.busy": "Working…",
     "workbooks.title": "Tracked workbooks",
     "workbooks.empty": "No tracked workbook yet. Drop a .xlsx file below to start one.",
     "drop.title": "Drop a workbook here",
@@ -16,6 +17,7 @@ export const screenMessages: Record<Lang, Record<string, string>> = {
     "demo.error": "The demo workbook could not be loaded.",
   },
   fr: {
+    "state.busy": "Traitement en cours…",
     "workbooks.title": "Classeurs suivis",
     "workbooks.empty": "Aucun classeur suivi pour l'instant. Déposez un fichier .xlsx ci-dessous pour en créer un.",
     "drop.title": "Déposez un classeur ici",

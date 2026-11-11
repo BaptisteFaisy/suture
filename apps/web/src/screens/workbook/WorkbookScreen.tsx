@@ -1,4 +1,6 @@
 import { useLang } from "../../i18n/lang";
+import { useNavigation } from "../../router";
+import { WorkbookNavBar } from "./WorkbookNavBar";
 import { useStore } from "../../store";
 import { HistoryGraph } from "./HistoryGraph";
 import { ScenarioSection } from "./ScenarioList";
@@ -19,6 +21,7 @@ export function WorkbookScreen() {
   const { lang } = useLang();
   const t = (key: string) => translateScreen(lang, key);
   const store = useStore();
+  const nav = useNavigation();
   const actions = useWorkbookScreen(store, t("error.generic"));
   const versions: ThreadVersion[] = store.versions;
 
@@ -39,6 +42,7 @@ export function WorkbookScreen() {
         t={t}
         onSelect={actions.select}
       />
+      <WorkbookNavBar nav={nav} workbookId={store.workbooks[0]?.id} t={t} />
       <div className="workbook-columns">
         <VersionPanel
           versions={versions}
@@ -78,3 +82,5 @@ function EmptyWorkbook(props: { t: (key: string) => string }) {
     </section>
   );
 }
+
+

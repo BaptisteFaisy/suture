@@ -1,6 +1,7 @@
 import { useState, type DragEvent } from "react";
 import { DemoNotPublishedError, loadDemoWorkbook } from "../../demo/demo";
 import { useLang } from "../../i18n/lang";
+import { useNavigation } from "../../router";
 import { useStore } from "../../store";
 import { interpolate } from "../workbook/format";
 import { translateScreen } from "./messages";
@@ -8,10 +9,21 @@ import { translateScreen } from "./messages";
 /** Screen 1 — tracked workbooks, drop zone, demo workbook. */
 export function HomeScreen() {
   const { lang } = useLang();
+  const store = useStore();
   const t = (key: string) => translateScreen(lang, key);
 
   return (
     <>
+      {store.status === "error" && store.error !== null && (
+        <p className="screen-error" role="alert">
+          {store.error}
+        </p>
+      )}
+      {store.status === "loading" && (
+        <p className="screen-status" role="status">
+          {t("state.busy")}
+        </p>
+      )}
       <section className="screen" aria-labelledby="workbooks-title">
         <h2 id="workbooks-title">{t("workbooks.title")}</h2>
         <WorkbooksPanel t={t} />
@@ -24,6 +36,7 @@ export function HomeScreen() {
 
 function WorkbooksPanel(props: { t: (key: string) => string }) {
   const store = useStore();
+  const nav = useNavigation();
   if (store.workbooks.length === 0) {
     return <p className="empty-state">{props.t("workbooks.empty")}</p>;
   }
@@ -34,7 +47,10 @@ function WorkbooksPanel(props: { t: (key: string) => string }) {
           <button
             type="button"
             className="workbook-entry"
-            onClick={() => store.openWorkbook(workbook.id)}
+            onClick={() => {
+              store.openWorkbook(workbook.id);
+              nav.go("workbook", { workbookId: workbook.id });
+            }}
           >
             {workbook.name}
           </button>
