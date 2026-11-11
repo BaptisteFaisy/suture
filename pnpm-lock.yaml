@@ -256,15 +256,25 @@ importers:
       '@isomorphic-git/lightning-fs':
         specifier: ^4.6.0
         version: 4.10.5
+      '@suture/canonical':
+        specifier: workspace:*
+        version: link:../canonical
       '@suture/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@suture/ooxml-io':
+        specifier: workspace:*
+        version: link:../ooxml-io
       isomorphic-git:
         specifier: ^1.25.0
         version: 1.44.12
       zod:
         specifier: ^4.0.0
         version: 4.6.7
+    devDependencies:
+      fflate:
+        specifier: ^0.8.2
+        version: 0.8.3
 
   packages/merge:
     dependencies:
