@@ -6,7 +6,7 @@ test.describe("Suture end-to-end suite", () => {
   }) => {
     await page.goto("/suture/");
     await expect(page).toHaveTitle(/Suture/);
-    await expect(page.locator("h1")).toHaveText("Suture");
+    await expect(page.locator(".brand-name")).toHaveText("Suture");
     await expect(page.locator(".tagline")).toBeVisible();
     await expect(page.locator(".dropzone")).toBeVisible();
     await expect(page.locator(".demo-button")).toBeVisible();
