@@ -16,10 +16,17 @@ const TOKEN_PATTERN = new RegExp(`${OPEN}([0-9]+)${CLOSE}`, "g");
 const REF_TEXT = String.raw`\$?[A-Za-z]{1,3}\$?[0-9]+`;
 const RANGE_TEXT = `${REF_TEXT}(?::${REF_TEXT})?`;
 
+/**
+ * A workbook reference carries a file name ("[Book1.xlsx]") or an index
+ * ("[1]"). A table column ("Table1[Amount]") carries neither, and must not be
+ * mistaken for one.
+ */
+const WORKBOOK_BRACKET = String.raw`\[(?:[^\]]*\.[A-Za-z0-9]{1,6}|[0-9]+)\]`;
+
 const PROTECTED_PATTERNS: RegExp[] = [
   /"(?:[^"]|"")*"/g,
-  new RegExp(String.raw`'(?:[^']|'')*\[[^\]]*\](?:[^']|'')*'!${RANGE_TEXT}`, "g"),
-  new RegExp(String.raw`\[[^\]]*\][^\s:!,[\]]*!${RANGE_TEXT}`, "g"),
+  new RegExp(String.raw`'(?:[^']|'')*${WORKBOOK_BRACKET}(?:[^']|'')*'!${RANGE_TEXT}`, "g"),
+  new RegExp(String.raw`${WORKBOOK_BRACKET}[^\s:!,[\]]*!${RANGE_TEXT}`, "g"),
   /'(?:[^']|'')*'/g,
   // External workbook without a trailing reference: the bracket must hold a
   // file name (a dot and an extension), otherwise an R1C1 offset such as
@@ -38,9 +45,13 @@ export interface ProtectedFormula {
   hasExternal: boolean;
 }
 
-/** A segment is external when it carries a bracket that is not a table name. */
+/**
+ * A segment is external when it carries a workbook reference that is not a
+ * table column: "Table1[Amount]" is a table, "'[Book1.xlsx]Sheet1'!A1" is
+ * another workbook.
+ */
 function isExternalSegment(segment: string): boolean {
-  if (!segment.includes("[")) {
+  if (!new RegExp(WORKBOOK_BRACKET).test(segment)) {
     return false;
   }
   return !/^[A-Za-z_][A-Za-z0-9_.]*\[/.test(segment);
