@@ -91,6 +91,8 @@ export function toComparisonView(
       formats: summary.formats,
       rowsInserted: summary.rowsInserted,
       rowsDeleted: summary.rowsDeleted,
+      colsInserted: summary.colsInserted,
+      colsDeleted: summary.colsDeleted,
       partsChanged: summary.partsChanged,
     },
     otherParts: changeSet.partChanges.map((part) => part.label),

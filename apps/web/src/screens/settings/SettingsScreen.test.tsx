@@ -1,10 +1,33 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { LangContext, type Lang } from "../../i18n/lang";
 import { StoreContext, type StoreAdapter } from "../../store";
+import { LAST_EXPORT_KEY } from "../../store/export-reminder";
 import { SettingsScreen } from "./SettingsScreen";
+
+/**
+ * This jsdom environment comes without a localStorage (Node shadows it with an
+ * undefined getter), so the test installs the shape `createBrowserHost` reads —
+ * the same pattern storage-quota.test.ts uses for `navigator.storage`.
+ */
+const settingsValues = new Map<string, string>();
+Object.defineProperty(window, "localStorage", {
+  configurable: true,
+  value: {
+    getItem: (key: string) => settingsValues.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      settingsValues.set(key, String(value));
+    },
+    removeItem: (key: string) => {
+      settingsValues.delete(key);
+    },
+    clear: () => {
+      settingsValues.clear();
+    },
+  },
+});
 
 function emptyStore(overrides: Partial<StoreAdapter> = {}): StoreAdapter {
   return {
@@ -52,7 +75,10 @@ function renderScreen(store: StoreAdapter, lang: Lang = "en") {
   return setLang;
 }
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  settingsValues.clear();
+});
 
 describe("SettingsScreen — author name", () => {
   it("shows the name already saved", () => {
@@ -161,5 +187,50 @@ describe("SettingsScreen — storage and export", () => {
     fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
     expect(clearStorage).not.toHaveBeenCalled();
     expect(screen.queryByRole("dialog")).toBeNull();
+  });
+});
+
+describe("SettingsScreen — export reminder after thirty days (SUT-N-05)", () => {
+  const DAY = 24 * 60 * 60 * 1000;
+
+  it("reminds when the last export is older than thirty days", async () => {
+    window.localStorage.setItem(LAST_EXPORT_KEY, String(Date.now() - 31 * DAY));
+    renderScreen(emptyStore());
+    const reminder = await screen.findByText(/It has been 31 days since your last export/);
+    expect(reminder.getAttribute("role")).toBe("status");
+  });
+
+  it("reminds in French too", async () => {
+    window.localStorage.setItem(LAST_EXPORT_KEY, String(Date.now() - 31 * DAY));
+    renderScreen(emptyStore(), "fr");
+    expect(
+      await screen.findByText(/Cela fait 31 jours depuis votre dernier export/),
+    ).toBeTruthy();
+  });
+
+  it("stays quiet when the last export is recent", () => {
+    window.localStorage.setItem(LAST_EXPORT_KEY, String(Date.now() - 5 * DAY));
+    renderScreen(emptyStore());
+    expect(screen.queryByText(/since your last export/)).toBeNull();
+  });
+
+  it("stays quiet when nothing was ever exported", () => {
+    renderScreen(emptyStore());
+    expect(screen.queryByText(/since your last export/)).toBeNull();
+  });
+
+  it("clears the reminder once a new export was offered", async () => {
+    window.localStorage.setItem(LAST_EXPORT_KEY, String(Date.now() - 31 * DAY));
+    const exportEverything = vi.fn(async () => {
+      // The real store stamps the export date through the host settings;
+      // the fake does the same so the screen can re-read it.
+      window.localStorage.setItem(LAST_EXPORT_KEY, String(Date.now()));
+    });
+    renderScreen(emptyStore({ exportEverything }));
+    expect(await screen.findByText(/It has been 31 days/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Export everything" }));
+    await waitFor(() => {
+      expect(screen.queryByText(/since your last export/)).toBeNull();
+    });
   });
 });

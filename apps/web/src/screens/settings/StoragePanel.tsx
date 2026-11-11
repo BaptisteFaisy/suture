@@ -1,5 +1,6 @@
 import type { StoreAdapter } from "../../store";
 import type { Lang } from "../../i18n/lang";
+import { EXPORT_REMINDER_DAYS } from "../../store/export-reminder";
 import { Dialog } from "../workbook/Dialog";
 import { formatBytes, formatPercent, interpolate } from "../workbook/format";
 import { useStorage, type StorageState } from "./useStorage";
@@ -7,7 +8,8 @@ import type { StorageQuota } from "./storage-quota";
 
 /**
  * Storage panel of screen 6 (SUT-N-05): persistence request, quota, the export
- * reminder before 30 % of the space is used, the full export and the erasure.
+ * reminder before 30 % of the space is used, the reminder after thirty days
+ * without an export, the full export and the erasure.
  */
 export function StoragePanel(props: {
   readonly store: StoreAdapter;
@@ -23,11 +25,7 @@ export function StoragePanel(props: {
       <p className="settings-hint">{t("storage.intro")}</p>
       <QuotaLine quota={storage.quota} lang={lang} t={t} />
       <StorageFeedback state={storage} />
-      {storage.remind && (
-        <p className="settings-reminder" role="status">
-          {t("storage.reminder")}
-        </p>
-      )}
+      <ExportReminders storage={storage} t={t} />
       <div className="settings-actions">
         <button type="button" onClick={() => void storage.askPersistence(t)}>
           {t("storage.persist")}
@@ -52,6 +50,33 @@ export function StoragePanel(props: {
         onConfirm={() => void storage.clearEverything(t)}
       />
     </section>
+  );
+}
+
+/**
+ * The two reminders of SUT-N-05: the space used in this browser, and the age
+ * of the last export. Both are announced as a status, never by colour alone.
+ */
+function ExportReminders(props: {
+  storage: StorageState;
+  t: (key: string) => string;
+}) {
+  const { storage, t } = props;
+  return (
+    <>
+      {storage.remind && (
+        <p className="settings-reminder" role="status">
+          {t("storage.reminder")}
+        </p>
+      )}
+      {storage.exportOverdue && (
+        <p className="settings-reminder" role="status">
+          {interpolate(t("storage.staleReminder"), {
+            days: String(storage.daysSinceExport ?? EXPORT_REMINDER_DAYS),
+          })}
+        </p>
+      )}
+    </>
   );
 }
 

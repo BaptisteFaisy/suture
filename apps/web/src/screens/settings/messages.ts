@@ -35,6 +35,8 @@ export const screenMessages: Record<Lang, Record<string, string>> = {
       "This browser cannot be asked to keep the data: export regularly.",
     "storage.reminder":
       "You are close to the space available: export your tracked workbooks now.",
+    "storage.staleReminder":
+      "It has been {days} days since your last export: export your tracked workbooks to keep a copy outside this browser.",
     "storage.clear": "Erase everything",
     "storage.clearTitle": "Erase everything?",
     "storage.clearHint":
@@ -80,6 +82,8 @@ export const screenMessages: Record<Lang, Record<string, string>> = {
       "Ce navigateur ne peut pas être prié de garder les données : exportez régulièrement.",
     "storage.reminder":
       "Vous approchez de l'espace disponible : exportez vos classeurs suivis maintenant.",
+    "storage.staleReminder":
+      "Cela fait {days} jours depuis votre dernier export : exportez vos classeurs suivis pour garder une copie hors de ce navigateur.",
     "storage.clear": "Tout effacer",
     "storage.clearTitle": "Tout effacer ?",
     "storage.clearHint":

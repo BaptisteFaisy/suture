@@ -12,8 +12,8 @@ const SUMMARY = {
   formats: 0,
   rowsInserted: 1,
   rowsDeleted: 0,
-  colsInserted: 0,
-  colsDeleted: 0,
+  colsInserted: 1,
+  colsDeleted: 1,
   sheetsAdded: 0,
   sheetsRemoved: 0,
   sheetsRenamed: 0,
@@ -38,7 +38,10 @@ const CHANGE_SET: ChangeSet = {
       rowsChanged: [
         { sheetId: 1, type: "inserted", rowIndex: 5, cells: [cell("A6", "Transport")] },
       ],
-      colsChanged: [],
+      colsChanged: [
+        { sheetId: 1, type: "inserted", colIndex: 2 },
+        { sheetId: 1, type: "deleted", colIndex: 4 },
+      ],
       structural: true,
     },
   ],
@@ -67,6 +70,8 @@ describe("toComparisonView", () => {
     expect(view.otherParts).toEqual(["Chart 1"]);
     expect(view.summary.inputsModified).toBe(1);
     expect(view.summary.rowsInserted).toBe(1);
+    expect(view.summary.colsInserted).toBe(1);
+    expect(view.summary.colsDeleted).toBe(1);
     expect(view.summary.partsChanged).toBe(1);
   });
 
