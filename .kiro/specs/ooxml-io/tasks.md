@@ -12,88 +12,102 @@
 - [x] 10. Implement streaming worksheet parser with shared-formula master/follower expansion, R1C1 conversion via `@suture/formula`, shortest number formatting, style-only cell omission, and 1,000,000-cell guard in `packages/canonical/src/worksheet-parser.ts`.
 - [x] 11. Implement deterministic TSV serializer/parser (`\`, `\t`, `\n`, `\r` escaping, row/col numeric sort) and SHA-256 non-cell part fingerprinter in `packages/canonical/src/tsv.ts` and `fingerprint.ts`.
 - [x] 12. Write property test `SUT-P-02` (order-independent deterministic derivation across shuffled ZIP entries) and `exceljs` oracle cross-check tests in `packages/canonical/test/`.
-- [ ] 13. Run `scripts/check-line-limits.mjs` on touched files (< 500 lines/file, < 50 lines/function) and record initial fast-check seeds in `KIRO_JOURNAL.md`.
+- [x] 13. Run `scripts/check-line-limits.mjs` on touched files (< 500 lines/file, < 50 lines/function) and record initial fast-check seeds in `KIRO_JOURNAL.md`. — Done: the script is green on the whole repository, the seeds of this lot are recorded in `packages/ooxml-io/PROPERTIES.md` and `packages/canonical/PROPERTIES.md`, and the seed column of `KIRO_JOURNAL.md` section 6 states, per property, whether a seed was captured.
 
-## Notes sur les tâches cochées
+## Notes on the ticked tasks
 
-Les tâches 1 à 5 couvrent le paquet `@suture/ooxml-io`. L'implémentation
-retient les contrats déjà figés dans `packages/contracts/src/ooxml.ts`
+Tasks 1 to 5 cover the `@suture/ooxml-io` package. The implementation keeps
+the contracts already frozen in `packages/contracts/src/ooxml.ts`
 (`OoxmlPart`, `OoxmlParts`, `UnzipLimits`, `DEFAULT_UNZIP_LIMITS`,
-`FileErrorCode`, `SutureFileError`, `ReadWorkbookResult`) : rien n'y a été
-modifié.
+`FileErrorCode`, `SutureFileError`, `ReadWorkbookResult`): nothing in them was
+modified.
 
-Emplacements réels :
+Actual locations:
 
-- `packages/ooxml-io/src/unzip.ts` — lecture, gardes, refus typés ;
-- `packages/ooxml-io/src/zip.ts` — recompression déterministe ;
-- `packages/ooxml-io/src/guards.ts` — magic bytes et limites ;
-- `packages/ooxml-io/src/parts.ts` — chemins, tri, macros ;
-- `packages/ooxml-io/src/index.ts` — API publique ;
-- tests et aide de fixtures dans `packages/ooxml-io/src/` (`read-workbook.test.ts`,
-  `zip-parts.test.ts`, `round-trip.prop.test.ts`, `test-fixtures.ts`), le
-  `vitest.config.ts` de la racine les inclut.
+- `packages/ooxml-io/src/unzip.ts` — reading, guards, typed refusals;
+- `packages/ooxml-io/src/zip.ts` — deterministic recompression;
+- `packages/ooxml-io/src/guards.ts` — magic bytes and limits;
+- `packages/ooxml-io/src/parts.ts` — paths, sorting, macros;
+- `packages/ooxml-io/src/index.ts` — public API;
+- tests and fixture helpers inside `packages/ooxml-io/src/`
+  (`read-workbook.test.ts`, `zip-parts.test.ts`, `round-trip.prop.test.ts`,
+  `test-fixtures.ts`); the root `vitest.config.ts` includes them.
 
-La validation de l'archive OPC est faite dans `unzip.ts` (le spec la place
-dans un fichier `validate.ts` séparé ; la séparation n'apporte rien ici et le
-paquet reste sous les limites de lignes/fonctions).
+The OPC validation of the archive is done in `unzip.ts` (the spec put it in a
+separate `validate.ts`; the split buys nothing here and the package stays under
+the line and function limits).
 
-Le ratio de compression n'est inspecté qu'au-dessus de 1 Mo
-(`RATIO_CHECK_MIN_BYTES`), comme le prévoit SUT-N-04 : en dessous, le ratio
-mesure l'overhead deflate et refuserait des parties légitimes.
+The compression ratio is only inspected above 1 MB (`RATIO_CHECK_MIN_BYTES`),
+as SUT-N-04 provides: below that, the ratio measures the deflate overhead and
+would refuse legitimate parts.
 
-Les graines fast-check sont consignées dans `packages/ooxml-io/PROPERTIES.md`.
+The fast-check seeds are recorded in `packages/ooxml-io/PROPERTIES.md`.
 
-Les tâches 7 à 12 couvrent le paquet `@suture/canonical`. Rien n'a été modifié
-dans `packages/contracts` ni dans les autres paquets.
+Tasks 7 to 12 cover the `@suture/canonical` package. Nothing was modified in
+`packages/contracts` nor in the other packages.
 
-Emplacements réels :
+Actual locations:
 
-- `packages/canonical/src/xml.ts` — lecteur XML maison (arbre, entités, CDATA),
-  aucune entité externe n'est résolue ;
-- `packages/canonical/src/shared-strings.ts` — table des textes partagés, texte
-  enrichi aplati (`<rPh>` ignoré) ;
-- `packages/canonical/src/styles.ts` — `cellXfs` → code de format, formats
-  intégrés ECMA-376 + `numFmts` personnalisés ;
-- `packages/canonical/src/workbook-meta.ts` — feuilles (nom, `sheetId`, ordre,
-  visibilité) et noms définis, partie de feuille résolue par
-  `xl/_rels/workbook.xml.rels` ;
-- `packages/canonical/src/worksheet.ts` — cellules, formules partagées
-  développées, nombre le plus court, cellule de style seul omise ;
-- `packages/canonical/src/tsv.ts` — sérialisation/lecture de `cells/*.tsv` ;
-- `packages/canonical/src/workbook-json.ts` — `cells/_workbook.json` ;
-- `packages/canonical/src/origin-marker.ts` — lecture et retrait des propriétés
-  Suture de `docProps/custom.xml` ;
-- `packages/canonical/src/derive.ts` — `deriveCanonical(parts)` ;
-- `packages/canonical/src/formula-codec.ts` — pont vers `@suture/formula`
-  (`a1ToR1c1`, `shiftA1`), rien n'est réimplémenté ici ;
-- `packages/canonical/src/refs.ts` — adresses A1, appuyé sur `parseRefToken`,
-  `columnToNumber` et `formatRef` de `@suture/formula` ;
-- `packages/canonical/src/cell-map.ts` — index `ref → CellRecord` (contrat
-  `CellMap`) ;
-- tests dans `packages/canonical/src/*.test.ts` (même disposition que
-  `@suture/ooxml-io` et `@suture/ooxml-patch`), générateurs dans
-  `packages/canonical/test/generators.ts` : les parties OOXML y sont de petites
-  chaînes XML écrites à la main, sans outillage de fixtures.
+- `packages/canonical/src/xml.ts` — home-grown XML reader (tree, entities,
+  CDATA); no external entity is ever resolved;
+- `packages/canonical/src/shared-strings.ts` — shared string table, rich text
+  flattened (`<rPh>` ignored);
+- `packages/canonical/src/styles.ts` — `cellXfs` → format code, ECMA-376
+  built-in formats plus the custom `numFmts`;
+- `packages/canonical/src/workbook-meta.ts` — sheets (name, `sheetId`, order,
+  visibility) and defined names, the sheet part resolved through
+  `xl/_rels/workbook.xml.rels`;
+- `packages/canonical/src/worksheet.ts` — cells, shared formulas expanded,
+  shortest number, style-only cell omitted;
+- `packages/canonical/src/tsv.ts` — serialization and reading of `cells/*.tsv`;
+- `packages/canonical/src/workbook-json.ts` — `cells/_workbook.json`;
+- `packages/canonical/src/origin-marker.ts` — reading and stripping the Suture
+  properties of `docProps/custom.xml`;
+- `packages/canonical/src/derive.ts` — `deriveCanonical(parts)`;
+- `packages/canonical/src/formula-codec.ts` — bridge to `@suture/formula`
+  (`a1ToR1c1`, `shiftA1`); nothing is reimplemented here;
+- `packages/canonical/src/refs.ts` — A1 addresses, built on `parseRefToken`,
+  `columnToNumber` and `formatRef` of `@suture/formula`;
+- `packages/canonical/src/cell-map.ts` — the `ref → CellRecord` index (the
+  `CellMap` contract);
+- tests in `packages/canonical/src/*.test.ts` (the same layout as
+  `@suture/ooxml-io` and `@suture/ooxml-patch`), generators in
+  `packages/canonical/test/generators.ts`: the OOXML parts there are small
+  hand-written XML strings, with no fixture tooling.
 
-Écarts assumés :
+Accepted deviations:
 
-- le nommage déterministe des fichiers `cells/*.tsv` (`01-budget.tsv`) n'est pas
-  produit ici : le contrat figé `SheetMeta` ne porte pas ce champ, c'est
-  `@suture/git-store` qui compose le nom à partir de `order` et de `name` ;
-- aucune empreinte SHA-256 des parties hors cellules : le contrat figé
-  `CanonicalWorkbook` ne comporte que `meta` et `sheets` (la tâche 11 la
-  prévoyait dans un `fingerprint.ts`) ;
-- la garde des 1 000 000 cellules (SUT-F-04) reste dans `@suture/ooxml-io`,
-  qui connaît les limites ; la dérivation ne la duplique pas ;
-- `exceljs` n'est pas ajouté en dépendance de test (aucune dépendance nouvelle) :
-  les tests comparent la dérivation à des parties OOXML écrites à la main ;
-- `packages/canonical/package.json` reste à `@suture/contracts` seul : déclarer
-  `@suture/formula` et `@suture/ooxml-io` imposerait de régénérer
-  `pnpm-lock.yaml`, hors du périmètre de cette tâche. Les imports `@suture/*`
-  sont résolus par les alias d'espace de travail (`tsconfig.base.json` +
-  `scripts/workspace-aliases.mjs`), comme partout ailleurs dans le dépôt ;
-- une cellule `t="d"` (date ISO 8601, rare) est rendue en `kind: "s"` avec son
-  texte conservé : le contrat figé `CellKind` n'a pas de variante de date, et
-  inventer un numéro de série ferait perdre le texte stocké.
+- the deterministic naming of the `cells/*.tsv` files (`01-budget.tsv`) is not
+  produced here: the frozen `SheetMeta` contract carries no such field, and it
+  is `@suture/git-store` that composes the name from `order` and `name`;
+- no SHA-256 fingerprint of the non-cell parts: the frozen `CanonicalWorkbook`
+  contract holds only `meta` and `sheets` (task 11 expected it in a
+  `fingerprint.ts`). The non-cell parts are fingerprinted with FNV-1a by the
+  diff engine instead (`packages/diff/src/parts.ts`);
+- the 1,000,000-cell guard (SUT-F-04) stays in `@suture/ooxml-io`, which knows
+  the limits; the derivation does not duplicate it;
+- `exceljs` was not added as a test dependency (no new dependency at all): the
+  tests compare the derivation with hand-written OOXML parts;
+- `packages/canonical/package.json` keeps `@suture/contracts` alone: declaring
+  `@suture/formula` and `@suture/ooxml-io` would mean regenerating
+  `pnpm-lock.yaml`, out of the scope of that task. The `@suture/*` imports are
+  resolved by the workspace aliases (`tsconfig.base.json` +
+  `scripts/workspace-aliases.mjs`), as everywhere else in the repository;
+- a `t="d"` cell (an ISO 8601 date, rare) is rendered as `kind: "s"` with its
+  text kept: the frozen `CellKind` contract has no date variant, and inventing
+  a serial number would lose the stored text.
 
-Les graines fast-check sont consignées dans `packages/canonical/PROPERTIES.md`.
+The fast-check seeds are recorded in `packages/canonical/PROPERTIES.md`.
+
+## Remaining
+
+Measured on `origin/main` at commit `8bd6632`.
+
+- There is no `saxes` streaming XML wrapper in `@suture/ooxml-io`, and no
+  `packages/ooxml-io/src/xml-stream.ts`: this package reads bytes and refuses
+  what it must refuse, and the XML is parsed downstream. Both readers are safe
+  by construction — `packages/canonical/src/xml.ts` supports no DTD at all, so
+  no external entity can be resolved, and `packages/ooxml-patch/src/xml.ts`
+  treats a `DOCTYPE` as ordinary text and never resolves it. What is missing is
+  the explicit XXE unit test that the task asked for: no test feeds an
+  `<!ENTITY>` document to either reader.
