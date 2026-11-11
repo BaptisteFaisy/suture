@@ -56,7 +56,7 @@ node scripts/check-contest.mjs   # conformité concours (dépôt, licence, .kiro
 ## Propriétés (fast-check)
 
 - [ ] Les douze propriétés SUT-P-01 à SUT-P-12 passent ; les graines sont
-      consignées (`packages/*/PROPERTIES.md`).
+      consignées (`packages/*/PROPERTIES.md`), avec 80 à 300 tirages par propriété.
 - [ ] `Réunir(O, A, B)` et `Réunir(O, B, A)` donnent les mêmes cellules, aux
       désaccords près dont les côtés sont échangés.
 
