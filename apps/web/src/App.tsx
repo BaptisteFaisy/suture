@@ -9,7 +9,8 @@ import { CompareScreen } from "./screens/compare/CompareScreen";
 import { HomeScreen } from "./screens/home/HomeScreen";
 import { SettingsScreen } from "./screens/settings/SettingsScreen";
 import { WorkbookScreen } from "./screens/workbook/WorkbookScreen";
-import { StoreContext, createStubStore } from "./store";
+import { StoreContext, createBrowserEngines, createBrowserHost } from "./store";
+import { useRealStore } from "./store/useRealStore";
 
 const SCREENS: Record<ScreenName, () => ReactNode> = {
   home: () => <HomeScreen />,
@@ -41,10 +42,10 @@ export function App() {
     setParams(last.params);
   };
 
-  const store = useMemo(
-    () => createStubStore(),
-    [],
-  );
+  // The real store: the engines and the browser host are injected once.
+  const engines = useMemo(() => createBrowserEngines(), []);
+  const host = useMemo(() => createBrowserHost(), []);
+  const store = useRealStore({ engines, host });
   const t = (key: string) => translateCommon(lang, key);
   const renderScreen = SCREENS[screen];
 

@@ -8,6 +8,7 @@
  * machine.
  */
 export { createSutureStore, type SutureStoreOptions } from "./store";
+export { browserFilesystem, createBrowserStore, workbookDir, BROWSER_STORE_NAME } from "./browser";
 export { createContext, storedName, versionFiles, nameOfRef, type StoreContext, type StoreOptions } from "./context";
 export { versionOps, type VersionOps } from "./versions";
 export { scenarioOps, type ScenarioOps } from "./scenarios";
