@@ -22,14 +22,11 @@ export {
   EXCEL_MAX_COL,
   EXCEL_MAX_ROW,
   cellRefSortKey,
-  columnIndexOf,
-  columnLetters,
   formatCellRef,
   isValidColumn,
   parseCellRef,
 } from "./refs";
 export { toCellMap } from "./cell-map";
-export type { CellPosition } from "./refs";
 export {
   BUILTIN_NUMBER_FORMATS,
   GENERAL_FORMAT,
@@ -53,7 +50,7 @@ export {
   stripSutureProperties,
 } from "./origin-marker";
 export type { CustomProperty, OriginMarker } from "./origin-marker";
-export { fallbackCodec, resolveFormulaCodec } from "./formula-codec";
+export { defaultFormulaCodec, resolveFormulaCodec } from "./formula-codec";
 export type { ConversionResult, FormulaCodec } from "./formula-codec";
 export { CANONICAL_FORMAT_VERSION } from "@suture/contracts";
 export type {
@@ -61,6 +58,7 @@ export type {
   CanonicalWorkbook,
   CellKind,
   CellMap,
+  CellPos,
   CellRecord,
   DefinedName,
   SheetMeta,
