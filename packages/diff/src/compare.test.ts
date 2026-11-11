@@ -77,6 +77,32 @@ describe("rows", () => {
     expect(changes.summary.rowsDeleted).toBe(1);
     expect(changes.summary.inputsModified).toBe(0);
   });
+
+  it("pairs a retyped row as modified, not as a deletion plus an insertion", () => {
+    const wide = workbook(
+      sheet(1, "Budget", [
+        cell("A1", "a"),
+        cell("B1", "b"),
+        cell("C1", "c"),
+        cell("D1", "d"),
+        cell("E1", "e"),
+      ]),
+    );
+    const retyped = workbook(
+      sheet(1, "Budget", [
+        cell("A1", "a"),
+        cell("B1", "B"),
+        cell("C1", "C"),
+        cell("D1", "D"),
+        cell("E1", "e"),
+      ]),
+    );
+    const changes = compare(wide, retyped);
+    expect(changes.summary.inputsModified).toBe(3);
+    expect(changes.summary.rowsInserted).toBe(0);
+    expect(changes.summary.rowsDeleted).toBe(0);
+    expect(changes.sheets[0]?.structural).toBe(false);
+  });
 });
 
 describe("sheets and parts", () => {
