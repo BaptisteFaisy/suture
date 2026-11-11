@@ -1,0 +1,13 @@
+{
+  "name": "@suture/canonical",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic derivation of cells/*.tsv from OOXML parts.",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@suture/contracts": "workspace:*"
+  }
+}

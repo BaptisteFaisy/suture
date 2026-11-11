@@ -1,0 +1,16 @@
+{
+  "name": "@suture/git-store",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Versions, scenarios, milestones and export over isomorphic-git.",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@suture/contracts": "workspace:*",
+    "isomorphic-git": "^1.25.0",
+    "@isomorphic-git/lightning-fs": "^4.6.0",
+    "zod": "^4.0.0"
+  }
+}

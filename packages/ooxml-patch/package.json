@@ -1,0 +1,13 @@
+{
+  "name": "@suture/ooxml-patch",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Carrier cell patching, calcChain removal, origin marker.",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@suture/contracts": "workspace:*"
+  }
+}
