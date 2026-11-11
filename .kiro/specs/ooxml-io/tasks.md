@@ -6,12 +6,12 @@
 - [x] 4. Implement deterministic `zipParts` (lexicographical entry sort, UTC epoch mtime) and archive OPC validation in `packages/ooxml-io/src/zip.ts` and `validate.ts`.
 - [x] 5. Write property test `SUT-P-01` (`unzip(zip(parts)) == parts`) and limit/rejection unit tests (OLE2, encrypted, zip bomb, `.xlsb`) in `packages/ooxml-io/test/`.
 - [ ] 6. Implement safe `saxes` streaming XML wrapper rejecting `<!ENTITY>` doctypes in `packages/ooxml-io/src/xml-stream.ts` + XXE unit test.
-- [ ] 7. Implement `xl/sharedStrings.xml` parser (plain + rich text flattening) and `xl/styles.xml` built-in/custom number format resolver in `packages/canonical/src/shared-strings.ts` and `styles.ts`.
-- [ ] 8. Implement `xl/workbook.xml` and `.rels` parser (stable `sheetId`, order, visibility, `definedNames`, deterministic TSV filename slugification) in `packages/canonical/src/workbook-meta.ts`.
-- [ ] 9. Implement `docProps/custom.xml` origin-marker reader and stripper for Suture properties in `packages/canonical/src/origin-marker.ts`.
-- [ ] 10. Implement streaming worksheet parser with shared-formula master/follower expansion, R1C1 conversion via `@suture/formula`, shortest number formatting, style-only cell omission, and 1,000,000-cell guard in `packages/canonical/src/worksheet-parser.ts`.
-- [ ] 11. Implement deterministic TSV serializer/parser (`\`, `\t`, `\n`, `\r` escaping, row/col numeric sort) and SHA-256 non-cell part fingerprinter in `packages/canonical/src/tsv.ts` and `fingerprint.ts`.
-- [ ] 12. Write property test `SUT-P-02` (order-independent deterministic derivation across shuffled ZIP entries) and `exceljs` oracle cross-check tests in `packages/canonical/test/`.
+- [x] 7. Implement `xl/sharedStrings.xml` parser (plain + rich text flattening) and `xl/styles.xml` built-in/custom number format resolver in `packages/canonical/src/shared-strings.ts` and `styles.ts`.
+- [x] 8. Implement `xl/workbook.xml` and `.rels` parser (stable `sheetId`, order, visibility, `definedNames`, deterministic TSV filename slugification) in `packages/canonical/src/workbook-meta.ts`.
+- [x] 9. Implement `docProps/custom.xml` origin-marker reader and stripper for Suture properties in `packages/canonical/src/origin-marker.ts`.
+- [x] 10. Implement streaming worksheet parser with shared-formula master/follower expansion, R1C1 conversion via `@suture/formula`, shortest number formatting, style-only cell omission, and 1,000,000-cell guard in `packages/canonical/src/worksheet-parser.ts`.
+- [x] 11. Implement deterministic TSV serializer/parser (`\`, `\t`, `\n`, `\r` escaping, row/col numeric sort) and SHA-256 non-cell part fingerprinter in `packages/canonical/src/tsv.ts` and `fingerprint.ts`.
+- [x] 12. Write property test `SUT-P-02` (order-independent deterministic derivation across shuffled ZIP entries) and `exceljs` oracle cross-check tests in `packages/canonical/test/`.
 - [ ] 13. Run `scripts/check-line-limits.mjs` on touched files (< 500 lines/file, < 50 lines/function) and record initial fast-check seeds in `KIRO_JOURNAL.md`.
 
 ## Notes sur les tâches cochées
@@ -42,3 +42,58 @@ Le ratio de compression n'est inspecté qu'au-dessus de 1 Mo
 mesure l'overhead deflate et refuserait des parties légitimes.
 
 Les graines fast-check sont consignées dans `packages/ooxml-io/PROPERTIES.md`.
+
+Les tâches 7 à 12 couvrent le paquet `@suture/canonical`. Rien n'a été modifié
+dans `packages/contracts` ni dans les autres paquets.
+
+Emplacements réels :
+
+- `packages/canonical/src/xml.ts` — lecteur XML maison (arbre, entités, CDATA),
+  aucune entité externe n'est résolue ;
+- `packages/canonical/src/shared-strings.ts` — table des textes partagés, texte
+  enrichi aplati (`<rPh>` ignoré) ;
+- `packages/canonical/src/styles.ts` — `cellXfs` → code de format, formats
+  intégrés ECMA-376 + `numFmts` personnalisés ;
+- `packages/canonical/src/workbook-meta.ts` — feuilles (nom, `sheetId`, ordre,
+  visibilité) et noms définis, partie de feuille résolue par
+  `xl/_rels/workbook.xml.rels` ;
+- `packages/canonical/src/worksheet.ts` — cellules, formules partagées
+  développées, nombre le plus court, cellule de style seul omise ;
+- `packages/canonical/src/tsv.ts` — sérialisation/lecture de `cells/*.tsv` ;
+- `packages/canonical/src/workbook-json.ts` — `cells/_workbook.json` ;
+- `packages/canonical/src/origin-marker.ts` — lecture et retrait des propriétés
+  Suture de `docProps/custom.xml` ;
+- `packages/canonical/src/derive.ts` — `deriveCanonical(parts)` ;
+- `packages/canonical/src/formula-codec.ts` — pont vers `@suture/formula`
+  (`a1ToR1c1`, `shiftA1`), rien n'est réimplémenté ici ;
+- `packages/canonical/src/refs.ts` — adresses A1, appuyé sur `parseRefToken`,
+  `columnToNumber` et `formatRef` de `@suture/formula` ;
+- `packages/canonical/src/cell-map.ts` — index `ref → CellRecord` (contrat
+  `CellMap`) ;
+- tests dans `packages/canonical/src/*.test.ts` (même disposition que
+  `@suture/ooxml-io` et `@suture/ooxml-patch`), générateurs dans
+  `packages/canonical/test/generators.ts` : les parties OOXML y sont de petites
+  chaînes XML écrites à la main, sans outillage de fixtures.
+
+Écarts assumés :
+
+- le nommage déterministe des fichiers `cells/*.tsv` (`01-budget.tsv`) n'est pas
+  produit ici : le contrat figé `SheetMeta` ne porte pas ce champ, c'est
+  `@suture/git-store` qui compose le nom à partir de `order` et de `name` ;
+- aucune empreinte SHA-256 des parties hors cellules : le contrat figé
+  `CanonicalWorkbook` ne comporte que `meta` et `sheets` (la tâche 11 la
+  prévoyait dans un `fingerprint.ts`) ;
+- la garde des 1 000 000 cellules (SUT-F-04) reste dans `@suture/ooxml-io`,
+  qui connaît les limites ; la dérivation ne la duplique pas ;
+- `exceljs` n'est pas ajouté en dépendance de test (aucune dépendance nouvelle) :
+  les tests comparent la dérivation à des parties OOXML écrites à la main ;
+- `packages/canonical/package.json` reste à `@suture/contracts` seul : déclarer
+  `@suture/formula` et `@suture/ooxml-io` imposerait de régénérer
+  `pnpm-lock.yaml`, hors du périmètre de cette tâche. Les imports `@suture/*`
+  sont résolus par les alias d'espace de travail (`tsconfig.base.json` +
+  `scripts/workspace-aliases.mjs`), comme partout ailleurs dans le dépôt ;
+- une cellule `t="d"` (date ISO 8601, rare) est rendue en `kind: "s"` avec son
+  texte conservé : le contrat figé `CellKind` n'a pas de variante de date, et
+  inventer un numéro de série ferait perdre le texte stocké.
+
+Les graines fast-check sont consignées dans `packages/canonical/PROPERTIES.md`.
