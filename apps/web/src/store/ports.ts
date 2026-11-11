@@ -4,6 +4,11 @@
  * The store adapter depends on these interfaces only, never on a concrete
  * package. That keeps the wiring testable with fakes and makes the browser
  * boundary (file system, download, clock) explicit.
+ *
+ * Every method answers with a promise, even the ones a worker computes
+ * instantly: the heavy half of them runs in a web worker (SUT-N-03), and the
+ * store must not be allowed to assume a synchronous answer. The engine
+ * packages themselves stay synchronous; the asynchrony lives at the seam.
  */
 import type {
   CanonicalWorkbook,
@@ -24,16 +29,16 @@ export type PartsByPath = Record<string, Uint8Array>;
 /** Everything the app needs from the engine packages. */
 export interface Engines {
   /** Opens a workbook archive, with the contest limits and typed refusals. */
-  readWorkbook(bytes: Uint8Array): ReadWorkbookResult;
+  readWorkbook(bytes: Uint8Array): Promise<ReadWorkbookResult>;
   /** Derives the canonical cell view of an archive's parts. */
-  deriveCanonical(parts: OoxmlParts): CanonicalWorkbook;
+  deriveCanonical(parts: OoxmlParts): Promise<CanonicalWorkbook>;
   /** Compares two canonical views; raw parts give the non-cell fingerprints. */
   compare(
     before: CanonicalWorkbook,
     after: CanonicalWorkbook,
     beforeParts: PartsByPath,
     afterParts: PartsByPath,
-  ): ChangeSet;
+  ): Promise<ChangeSet>;
   /** Creates (or reopens) the version store of one tracked workbook. */
   openStore(workbookId: string): Promise<SutureStore>;
   /** Three-way combine plan. */
@@ -41,13 +46,13 @@ export interface Engines {
     origin: CanonicalWorkbook,
     a: CanonicalWorkbook,
     b: CanonicalWorkbook,
-  ): MergePlan;
+  ): Promise<MergePlan>;
   /** Applies the user's decisions to a plan. */
-  resolveMerge(plan: MergePlan, choices: DisagreementChoice[]): ResolvedMerge;
+  resolveMerge(plan: MergePlan, choices: DisagreementChoice[]): Promise<ResolvedMerge>;
   /** Patches the carrier archive at cell level. */
-  patchWorkbook(parts: OoxmlParts, request: PatchRequest): PatchResult;
+  patchWorkbook(parts: OoxmlParts, request: PatchRequest): Promise<PatchResult>;
   /** Recompresses parts into a workbook file. */
-  zipParts(parts: OoxmlParts): Uint8Array;
+  zipParts(parts: OoxmlParts): Promise<Uint8Array>;
 }
 
 /** The version store of the currently open workbook is the contract's

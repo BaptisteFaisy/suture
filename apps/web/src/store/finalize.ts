@@ -52,7 +52,7 @@ export async function finalizeCombine(
   const { plan, sides, store } = session;
   if (plan === null || sides === null || store === null) return session;
 
-  const resolved = deps.engines.resolveMerge(plan, Object.values(session.choices));
+  const resolved = await deps.engines.resolveMerge(plan, Object.values(session.choices));
   const carrierVersion = plan.carrier === "A" ? sides.a : sides.b;
   const [carrierParts, carrierView] = await Promise.all([
     store.getParts(carrierVersion),
@@ -62,12 +62,12 @@ export async function finalizeCombine(
   const sheetPaths = new Map<number, string>();
   for (const sheet of carrierView.meta.sheets) sheetPaths.set(sheet.sheetId, sheet.path);
 
-  const patched = deps.engines.patchWorkbook(carrierParts, {
+  const patched = await deps.engines.patchWorkbook(carrierParts, {
     patches: resolved.patches,
     sheetPaths,
     originMarker: { versionId: carrierVersion, scenario: plan.carrier },
   });
-  const bytes = deps.engines.zipParts(patched.parts);
+  const bytes = await deps.engines.zipParts(patched.parts);
   const report = renderReport(resolved.report);
   const name = registry.find(session.workbookId ?? "")?.name ?? "workbook.xlsx";
 

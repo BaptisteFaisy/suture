@@ -41,8 +41,12 @@ export type ReturnDecision =
  * file…). Typed refusals of the archive reader propagate as they are
  * (SUT-F-04): a file that cannot be opened is explained, never guessed.
  */
-export function readMarker(deps: AdapterDeps, bytes: Uint8Array): OriginMarker | null {
-  return readOriginMarker(deps.engines.readWorkbook(bytes).parts);
+export async function readMarker(
+  deps: AdapterDeps,
+  bytes: Uint8Array,
+): Promise<OriginMarker | null> {
+  const { parts } = await deps.engines.readWorkbook(bytes);
+  return readOriginMarker(parts);
 }
 
 /**

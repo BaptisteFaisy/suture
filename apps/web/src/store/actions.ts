@@ -208,7 +208,7 @@ export async function compareVersions(
     session.store.getParts(fromVersion),
     session.store.getParts(toVersion),
   ]);
-  const changeSet = deps.engines.compare(
+  const changeSet = await deps.engines.compare(
     before,
     after,
     partsByPath(beforeParts),
@@ -258,7 +258,7 @@ export async function planCombine(
     session.store.getCanonical(a),
     session.store.getCanonical(b),
   ]);
-  const plan = deps.engines.planMerge(originView, aView, bView);
+  const plan = await deps.engines.planMerge(originView, aView, bView);
   return {
     ...session,
     plan,

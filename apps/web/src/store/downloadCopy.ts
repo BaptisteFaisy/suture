@@ -35,12 +35,12 @@ export async function downloadWorkingCopy(
   if (store === null) return;
   const resolved = scenario ?? scenarioOf(session, versionId);
   const parts = await store.getParts(versionId);
-  const patched = deps.engines.patchWorkbook(parts, {
+  const patched = await deps.engines.patchWorkbook(parts, {
     patches: [],
     sheetPaths: new Map(),
     originMarker: resolved === undefined ? { versionId } : { versionId, scenario: resolved },
   });
-  const bytes = deps.engines.zipParts(patched.parts);
+  const bytes = await deps.engines.zipParts(patched.parts);
   deps.host.download(workingCopyFileName(versionId, resolved), bytes);
 }
 
