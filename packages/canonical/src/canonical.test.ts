@@ -145,6 +145,17 @@ describe("deriveCanonical — formulas", () => {
     expect(cells[11]).toMatchObject({ ref: "B13", cached: "26" });
   });
 
+  it("expands a follower listed before its master in the XML", () => {
+    const rows =
+      '<row r="1"><c r="B1"><f t="shared" si="7"/><v>2</v></c></row>' +
+      '<row r="2"><c r="B2"><f t="shared" ref="B1:B2" si="7">A2*2</f><v>4</v></c></row>';
+    const cells = cellsOf(rows).filter((cell) => cell.kind === "f");
+    expect(cells.map((cell) => [cell.ref, cell.input])).toEqual([
+      ["B1", "=RC[-1]*2"],
+      ["B2", "=RC[-1]*2"],
+    ]);
+  });
+
   it("converts a plain formula to L1C1 relative to its cell", () => {
     const cells = cellsOf(
       '<row r="14"><c r="B14"><f>SUM(B2:B13)</f><v>131500</v></c></row>',

@@ -64,11 +64,16 @@ Emplacements réels :
 - `packages/canonical/src/origin-marker.ts` — lecture et retrait des propriétés
   Suture de `docProps/custom.xml` ;
 - `packages/canonical/src/derive.ts` — `deriveCanonical(parts)` ;
-- `packages/canonical/src/formula-codec.ts` + `fallback-formula.ts` — pont vers
-  `@suture/formula`, avec convertisseur interne de repli tant que ce paquet
-  n'expose pas `a1ToR1c1` / `shiftA1` ;
-- tests dans `packages/canonical/test/` (`generators.ts` construit les parties
-  OOXML en petites chaînes XML, sans outillage de fixtures).
+- `packages/canonical/src/formula-codec.ts` — pont vers `@suture/formula`
+  (`a1ToR1c1`, `shiftA1`), rien n'est réimplémenté ici ;
+- `packages/canonical/src/refs.ts` — adresses A1, appuyé sur `parseRefToken`,
+  `columnToNumber` et `formatRef` de `@suture/formula` ;
+- `packages/canonical/src/cell-map.ts` — index `ref → CellRecord` (contrat
+  `CellMap`) ;
+- tests dans `packages/canonical/src/*.test.ts` (même disposition que
+  `@suture/ooxml-io` et `@suture/ooxml-patch`), générateurs dans
+  `packages/canonical/test/generators.ts` : les parties OOXML y sont de petites
+  chaînes XML écrites à la main, sans outillage de fixtures.
 
 Écarts assumés :
 
@@ -81,6 +86,14 @@ Emplacements réels :
 - la garde des 1 000 000 cellules (SUT-F-04) reste dans `@suture/ooxml-io`,
   qui connaît les limites ; la dérivation ne la duplique pas ;
 - `exceljs` n'est pas ajouté en dépendance de test (aucune dépendance nouvelle) :
-  les tests comparent la dérivation à des parties OOXML écrites à la main.
+  les tests comparent la dérivation à des parties OOXML écrites à la main ;
+- `packages/canonical/package.json` reste à `@suture/contracts` seul : déclarer
+  `@suture/formula` et `@suture/ooxml-io` imposerait de régénérer
+  `pnpm-lock.yaml`, hors du périmètre de cette tâche. Les imports `@suture/*`
+  sont résolus par les alias d'espace de travail (`tsconfig.base.json` +
+  `scripts/workspace-aliases.mjs`), comme partout ailleurs dans le dépôt ;
+- une cellule `t="d"` (date ISO 8601, rare) est rendue en `kind: "s"` avec son
+  texte conservé : le contrat figé `CellKind` n'a pas de variante de date, et
+  inventer un numéro de série ferait perdre le texte stocké.
 
 Les graines fast-check sont consignées dans `packages/canonical/PROPERTIES.md`.
