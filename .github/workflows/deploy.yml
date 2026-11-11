@@ -31,10 +31,13 @@ jobs:
           persist-credentials: false
           clean: false
 
-      - name: Outillage Node (r630 user space)
+      - name: Outillage Node (r630 ou poste de travail)
         shell: bash
         run: |
-          echo "$HOME/node24/bin" >> "$GITHUB_PATH"
+          # Node 24 sur le r630 (~/node24/bin), Node du poste (~/.local/bin).
+          for d in "$HOME/node24/bin" "$HOME/.local/bin"; do
+            [ -d "$d" ] && echo "$d" >> "$GITHUB_PATH"
+          done
           node --version
           pnpm --version
 
