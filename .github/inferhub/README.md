@@ -1,4 +1,4 @@
-# Agents Fireworks
+# Agents InferHub
 
 Deux agents, deux problèmes distincts, jamais une porte de merge : seule la CI
 verte fait merger. Tous deux sont lus sur `origin/main` par le sweep (la
@@ -9,7 +9,7 @@ vérifiées.
 
 Quand le sweep de `pr-auto-merge` échoue à rebaser une PR, il appelle
 `conflict_agent.py` dans son clone, rebase en cours. L'agent demande au modèle
-Fireworks la résolution de chaque fichier en conflit, termine le rebase, pousse
+InferHub la résolution de chaque fichier en conflit, termine le rebase, pousse
 sur la branche de la PR avec bail et rend compte en commentaire. La file reprend
 au passage suivant ; seule la CI verte fait merger.
 
@@ -27,7 +27,7 @@ et une branche de PR peut être antérieure à ce découpage.
 ## Contrat d'appel
 
 ```bash
-FIREWORKS_API_KEY=... python3 conflict_agent.py resolve \
+INFERHUB_API_KEY=... python3 conflict_agent.py resolve \
   --repo BaptisteFaisy/suture --pr 118 --branch feat/x --sha <tête>
 ```
 
@@ -39,10 +39,10 @@ Le script est lu sur `origin/main` (pas sur la branche de la PR, qui peut
 
 | Variable / secret | Défaut | Effet |
 |---|---|---|
-| secret `FIREWORKS_API_KEY` | — | sans lui, l'agent ne fait rien |
-| var `FIREWORKS_MODEL` | `accounts/fireworks/models/minimax-m3p1-flash` | modèle interrogé |
-| var `FIREWORKS_BASE_URL` | `https://api.fireworks.ai/inference/v1/chat/completions` | point d'API |
-| var `FIREWORKS_AGENT_RESOLVE` | `1` | `0` coupe l'agent sans toucher au code |
+| secret `INFERHUB_API_KEY` | — | sans lui, l'agent ne fait rien |
+| var `INFERHUB_MODEL` | `combo/cheap` | modèle interrogé |
+| var `INFERHUB_BASE_URL` | `https://api.inferhub.dev/v1/chat/completions` | point d'API |
+| var `INFERHUB_AGENT_RESOLVE` | `1` | `0` coupe l'agent sans toucher au code |
 
 ## Garde-fous
 
@@ -70,14 +70,14 @@ restent refusés. Ce n'est pas un contournement du garde, c'est la déclaration
 manquante qui est écrite.
 
 ```bash
-FIREWORKS_API_KEY=... python3 scope_agent.py fix \
+INFERHUB_API_KEY=... python3 scope_agent.py fix \
   --repo BaptisteFaisy/suture --pr 215 --sha <tête> --guard /tmp/check_couche0.py
 ```
 
 Sorties : `0` corps complété (un commentaire porte le marqueur `automerge-scope`
 avec la tête, donc une seule tentative par commit), `1` échec avec compte rendu,
-`2` rien à faire. Réglages : `FIREWORKS_MODEL` / `FIREWORKS_BASE_URL` comme
-l'agent de conflit, `FIREWORKS_AGENT_SCOPE=0` pour couper. Plafond 25 fichiers ;
+`2` rien à faire. Réglages : `INFERHUB_MODEL` / `INFERHUB_BASE_URL` comme
+l'agent de conflit, `INFERHUB_AGENT_SCOPE=0` pour couper. Plafond 25 fichiers ;
 au-delà, label `intervention-humaine` et main humaine.
 
 Une puce rendue sous forme de glob ou de dossier (`app/**/Settings*.kt`,
@@ -105,7 +105,7 @@ facultative et ne casse aucun appelant : le balayeur peut la passer aussi.
 ## Validation
 
 ```bash
-cd .github/fireworks
+cd .github/inferhub
 python3 -m unittest test_conflict_agent test_scope_agent \
     test_union_journal test_quota -v
 ```

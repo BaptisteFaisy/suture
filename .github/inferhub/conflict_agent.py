@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Agent de conflit Fireworks pour la file pr-auto-merge.
+"""Agent de conflit InferHub pour la file pr-auto-merge.
 
 Appelé par le sweep DANS son clone quand un rebase bute sur un conflit : il
-fait résoudre chaque conflit élémentaire par un modèle Fireworks, recopie le
+fait résoudre chaque conflit élémentaire par un modèle InferHub, recopie le
 reste du fichier intact (jamais de réécriture complète : un gros fichier serait
 tronqué), boucle sur les arrêts (commits vidés sautés), pousse et rend compte.
 `union_journal.py` réunit les journaux sans modèle ; `quota.py` borne les
@@ -33,7 +33,7 @@ def _charger(nom):
     except ImportError:
         pass
     try:
-        proc = subprocess.run(["git", "show", "origin/main:.github/fireworks/"
+        proc = subprocess.run(["git", "show", "origin/main:.github/inferhub/"
                                "%s.py" % nom], capture_output=True, text=True,
                               timeout=60)
     except (OSError, subprocess.SubprocessError):
@@ -50,8 +50,8 @@ quota = _charger("quota")
 # v3 : porte de compilation à côté (`compilation_gate.py`) : plafond de 500 lignes.
 compilation_gate = _charger("compilation_gate")
 
-MODEL_DEFAULT = "accounts/fireworks/models/minimax-m3p1-flash"
-API_DEFAULT = "https://api.fireworks.ai/inference/v1/chat/completions"
+MODEL_DEFAULT = "combo/cheap"
+API_DEFAULT = "https://api.inferhub.dev/v1/chat/completions"
 MAX_FILES = 100
 MAX_FILE_BYTES = 200_000
 MAX_HUNKS = 20
@@ -63,7 +63,7 @@ MAX_TOKENS = 8_000
 TEMPERATURE = 0.2
 LABEL_OK = "agent-conflit"
 LABEL_HUMAN = "intervention-humaine"
-COMMENT_PREFIX = "_fireworks · agent de conflit (MiniMax M3.1 Flash)_"
+COMMENT_PREFIX = "_inferhub · agent de conflit (combo/cheap)_"
 REFUSED_PREFIXES = (".github/", ".mergify.yml")
 
 
@@ -81,7 +81,7 @@ def sh(args, **kw):
 
 
 def log(message):
-    print("fireworks-agent: %s" % message, flush=True)
+    print("inferhub-agent: %s" % message, flush=True)
 
 
 def pr_labels(repo, pr):
@@ -189,7 +189,7 @@ def build_hunk_messages(path, hunk):
 
 
 def fw_complete(api_url, key, model, messages):
-    """Un appel chat/completions Fireworks, rend le texte réponse."""
+    """Un appel chat/completions InferHub, rend le texte réponse."""
     payload = json.dumps({"model": model, "messages": messages,
                           "temperature": TEMPERATURE,
                           "max_tokens": MAX_TOKENS}).encode("utf-8")
@@ -200,11 +200,11 @@ def fw_complete(api_url, key, model, messages):
         with urllib.request.urlopen(req, timeout=CALL_TIMEOUT_S) as resp:
             data = json.loads(resp.read().decode("utf-8"))
     except Exception as exc:                                   # noqa: BLE001
-        raise AgentError("appel Fireworks : %s" % str(exc)[:200])
+        raise AgentError("appel InferHub : %s" % str(exc)[:200])
     try:
         return data["choices"][0]["message"]["content"]
     except (KeyError, IndexError, TypeError):
-        raise AgentError("réponse Fireworks illisible (pas de choices[0])")
+        raise AgentError("réponse InferHub illisible (pas de choices[0])")
 
 
 def extract_file(text):
@@ -295,17 +295,17 @@ Skip = quota.Saisine if quota else _SaisineLocale
 
 def env_or(name, default):
     """Variable d'env ou défaut. GitHub injecte une var absente comme ""
-    (et non unset) : `os.environ.get(n, d)` rendrait "" → 400 Fireworks."""
+    (et non unset) : `os.environ.get(n, d)` rendrait "" → 400 InferHub."""
     return os.environ.get(name) or default
 
 
 def preflight(repo, pr, sha, dry_run, now):
     """Garde-fous et lecture des fichiers en conflit. Rend (clé, modèle, url, fichiers)."""
-    if os.environ.get("FIREWORKS_AGENT_RESOLVE", "1") == "0":
-        raise Skip("désactivé (FIREWORKS_AGENT_RESOLVE=0)")
-    key = os.environ.get("FIREWORKS_API_KEY", "")
+    if os.environ.get("INFERHUB_AGENT_RESOLVE", "1") == "0":
+        raise Skip("désactivé (INFERHUB_AGENT_RESOLVE=0)")
+    key = os.environ.get("INFERHUB_API_KEY", "")
     if not key and not dry_run:
-        raise Skip("pas de clé FIREWORKS_API_KEY")
+        raise Skip("pas de clé INFERHUB_API_KEY")
     if quota is not None:
         quota.gc_stamps(now)
     labels = pr_labels(repo, pr)
@@ -320,8 +320,8 @@ def preflight(repo, pr, sha, dry_run, now):
     if not files:
         raise Skip("aucun fichier en conflit")
     check_round_files(files)
-    model = env_or("FIREWORKS_MODEL", MODEL_DEFAULT)
-    api_url = env_or("FIREWORKS_BASE_URL", API_DEFAULT)
+    model = env_or("INFERHUB_MODEL", MODEL_DEFAULT)
+    api_url = env_or("INFERHUB_BASE_URL", API_DEFAULT)
     return key, model, api_url, files
 
 

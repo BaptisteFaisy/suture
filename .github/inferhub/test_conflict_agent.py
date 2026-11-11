@@ -2,7 +2,7 @@
 """Tests ciblés de conflict_agent.py — bibliothèque standard uniquement.
 
 Lance : python3 -m unittest test_conflict_agent -v
-(depuis .github/fireworks/).
+(depuis .github/inferhub/).
 """
 import os
 import shutil
@@ -21,20 +21,20 @@ class EnvOrTest(unittest.TestCase):
 
     def test_var_absente_rend_defaut(self):
         with mock.patch.dict(os.environ):
-            os.environ.pop("FIREWORKS_MODEL", None)
+            os.environ.pop("INFERHUB_MODEL", None)
             self.assertEqual(
-                conflict_agent.env_or("FIREWORKS_MODEL", "DEFAUT"), "DEFAUT")
+                conflict_agent.env_or("INFERHUB_MODEL", "DEFAUT"), "DEFAUT")
 
     def test_var_vide_rend_defaut(self):
-        # Régression 28/10 : modèle "" → 400 Fireworks sur un vrai conflit.
-        with mock.patch.dict(os.environ, {"FIREWORKS_MODEL": ""}):
+        # Régression 28/10 : modèle "" → 400 InferHub sur un vrai conflit.
+        with mock.patch.dict(os.environ, {"INFERHUB_MODEL": ""}):
             self.assertEqual(
-                conflict_agent.env_or("FIREWORKS_MODEL", "DEFAUT"), "DEFAUT")
+                conflict_agent.env_or("INFERHUB_MODEL", "DEFAUT"), "DEFAUT")
 
     def test_var_renseignee_gagne(self):
-        with mock.patch.dict(os.environ, {"FIREWORKS_MODEL": "M"}):
+        with mock.patch.dict(os.environ, {"INFERHUB_MODEL": "M"}):
             self.assertEqual(
-                conflict_agent.env_or("FIREWORKS_MODEL", "DEFAUT"), "M")
+                conflict_agent.env_or("INFERHUB_MODEL", "DEFAUT"), "M")
 
 
 class PushUrlTest(unittest.TestCase):
@@ -291,7 +291,7 @@ class DryRunStampTest(unittest.TestCase):
                 mock.patch.object(conflict_agent, "pr_labels", return_value=[]):
             rc = conflict_agent.cmd_resolve(args)
         self.assertEqual(rc, 0)
-        cache = os.path.join(home, ".cache", "fireworks-agent")
+        cache = os.path.join(home, ".cache", "inferhub-agent")
         stamps = os.listdir(cache) if os.path.isdir(cache) else []
         self.assertEqual(stamps, [])
 

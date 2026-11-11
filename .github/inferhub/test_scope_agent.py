@@ -2,7 +2,7 @@
 """Tests ciblés de scope_agent.py — bibliothèque standard uniquement.
 
 Lance : python3 -m unittest test_scope_agent -v
-(depuis .github/fireworks/).
+(depuis .github/inferhub/).
 """
 import importlib.util
 import os
