@@ -1,6 +1,8 @@
 import { useState, type DragEvent } from "react";
+import { DemoNotPublishedError, loadDemoWorkbook } from "../../demo/demo";
 import { useLang } from "../../i18n/lang";
 import { useStore } from "../../store";
+import { interpolate } from "../workbook/format";
 import { translateScreen } from "./messages";
 
 /** Screen 1 — tracked workbooks, drop zone, demo workbook. */
@@ -43,12 +45,25 @@ function WorkbooksPanel(props: { t: (key: string) => string }) {
 }
 
 function DropZone(props: { t: (key: string) => string }) {
-  const [received, setReceived] = useState<string | null>(null);
+  const store = useStore();
+  const [status, setStatus] = useState<string | null>(null);
+
+  const track = async (file: File) => {
+    setStatus(interpolate(props.t("drop.tracking"), { name: file.name }));
+    try {
+      await store.trackFile(file);
+      setStatus(interpolate(props.t("drop.tracked"), { name: file.name }));
+    } catch {
+      setStatus(null);
+    }
+  };
+
   const onDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const file = event.dataTransfer.files.item(0);
-    if (file) setReceived(file.name);
+    const file = event.dataTransfer.files[0];
+    if (file) void track(file);
   };
+
   return (
     <section
       className="dropzone"
@@ -58,9 +73,25 @@ function DropZone(props: { t: (key: string) => string }) {
     >
       <p className="dropzone-title">{props.t("drop.title")}</p>
       <p className="dropzone-hint">{props.t("drop.hint")}</p>
-      {received !== null && (
+      <label className="dropzone-picker">
+        {props.t("drop.picker")}
+        <input
+          type="file"
+          accept=".xlsx,.xlsm"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) void track(file);
+          }}
+        />
+      </label>
+      {status !== null && (
         <p className="dropzone-received" role="status">
-          {props.t("drop.received")} <strong>{received}</strong>
+          {status}
+        </p>
+      )}
+      {store.error !== null && (
+        <p className="dropzone-error" role="alert">
+          {store.error}
         </p>
       )}
     </section>
@@ -69,17 +100,53 @@ function DropZone(props: { t: (key: string) => string }) {
 
 function DemoBox(props: { t: (key: string) => string }) {
   const store = useStore();
+  const [busy, setBusy] = useState(false);
+  const [failure, setFailure] = useState<string | null>(null);
+
+  /**
+   * The store owns the demo (contract). If it cannot load it, the published
+   * demo trio is fetched and tracked one workbook at a time — and a missing
+   * publication is reported clearly instead of blocking the screen.
+   */
+  const runDemo = async () => {
+    setBusy(true);
+    setFailure(null);
+    try {
+      await store.loadDemo();
+    } catch {
+      try {
+        await loadDemoWorkbook(store);
+      } catch (error) {
+        setFailure(describeDemoError(error, props.t));
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <section className="demo">
       <button
         type="button"
         className="demo-button"
         disabled={!store.demoAvailable}
-        onClick={() => void store.loadDemo()}
+        onClick={() => void runDemo()}
       >
-        {props.t("demo.load")}
+        {busy ? props.t("demo.loading") : props.t("demo.load")}
       </button>
       {!store.demoAvailable && <span className="demo-hint">{props.t("demo.soon")}</span>}
+      {failure !== null && (
+        <span className="demo-hint" role="alert">
+          {failure}
+        </span>
+      )}
     </section>
   );
+}
+
+/** A missing publication has its own sentence; anything else is generic. */
+function describeDemoError(error: unknown, t: (key: string) => string): string {
+  if (error instanceof DemoNotPublishedError) return error.message;
+  if (error instanceof Error && error.message !== "") return error.message;
+  return t("demo.error");
 }

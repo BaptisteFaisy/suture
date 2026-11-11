@@ -1,0 +1,110 @@
+/* Screen 6 — settings: author name, language, storage, export. */
+
+.settings-panel {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.settings-panel h3 {
+  margin: 0 0 0.5rem;
+}
+
+.settings-panel form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.settings-panel label {
+  color: var(--ink-soft);
+}
+
+.settings-panel input[type="text"],
+.settings-panel select {
+  font: inherit;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  min-width: 14rem;
+}
+
+.settings-hint {
+  margin: 0.5rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.settings-quota {
+  margin: 0.5rem 0;
+}
+
+.settings-notice {
+  margin: 0.5rem 0;
+  color: var(--thread);
+}
+
+.settings-error {
+  margin: 0.5rem 0;
+  color: var(--scar);
+}
+
+.settings-reminder {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid var(--scar);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.settings-export {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--line);
+}
+
+.settings-export h4 {
+  margin: 0 0 0.25rem;
+}
+
+.settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.settings-actions button.danger {
+  border-color: var(--scar);
+  color: var(--scar);
+}
+
+.settings-panel button,
+.settings-actions button {
+  font: inherit;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.settings-panel button:focus-visible,
+.settings-panel input:focus-visible,
+.settings-panel select:focus-visible,
+.settings-actions button:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: 2px;
+}
+
+.settings-actions button:disabled {
+  color: var(--ink-soft);
+  background: color-mix(in srgb, var(--line) 40%, var(--panel));
+  cursor: not-allowed;
+}
