@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { LangContext } from "../../i18n/lang";
+import { NavigationContext } from "../../router";
 import { StoreContext, type StoreAdapter } from "../../store";
 import { HomeScreen } from "./HomeScreen";
 
@@ -42,9 +43,13 @@ function emptyStore(overrides: Partial<StoreAdapter> = {}): StoreAdapter {
 function renderScreen(store: StoreAdapter) {
   const tree: ReactElement = (
     <LangContext.Provider value={{ lang: "en", setLang: () => undefined }}>
+      <NavigationContext.Provider
+        value={{ screen: "home", params: {}, go: () => undefined, back: () => undefined }}
+      >
       <StoreContext.Provider value={store}>
         <HomeScreen />
       </StoreContext.Provider>
+      </NavigationContext.Provider>
     </LangContext.Provider>
   );
   render(tree);

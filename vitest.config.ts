@@ -11,6 +11,7 @@ export default defineConfig({
       "packages/*/test/**/*.test.ts",
       "apps/web/src/**/*.test.{ts,tsx}",
       "experiments/**/*.test.ts",
+      "integration/**/*.test.ts",
     ],
     environment: "node",
     passWithNoTests: true,

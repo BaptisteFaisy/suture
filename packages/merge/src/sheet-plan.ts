@@ -101,6 +101,38 @@ export function combineSheet(options: {
   return { patches, disagreements, report };
 }
 
+/** Outcome of the decision taken for one cell of the other side. */
+interface CellDecision {
+  patch?: CellPatch;
+  disagreement?: Disagreement;
+  report?: ReportEntry;
+}
+
+/** A change that is reported but never written into the carrier. */
+function reportedOnly(side: Side, sheetName: string, ref: string, label: string): CellDecision {
+  return { report: { category: "not-carried", side, sheetName, ref, label } };
+}
+
+/**
+ * Changes that are not somebody's typing: a recalculated result (the combined
+ * file drops the calculation chain and asks the spreadsheet to recalculate on
+ * opening) and a format change. They are reported, never disagreed.
+ */
+function nonInputDecision(change: CellChange, sheetName: string, side: Side): CellDecision | null {
+  if (change.kind === "consequence") {
+    return reportedOnly(
+      side,
+      sheetName,
+      change.ref,
+      "Recalculated result — the spreadsheet recalculates it when the file opens",
+    );
+  }
+  if (change.kind === "format") {
+    return reportedOnly(side, sheetName, change.ref, "Format change");
+  }
+  return null;
+}
+
 /** The decision taken for one cell of the other side. */
 function decideCell(
   sheetId: number,
@@ -110,24 +142,19 @@ function decideCell(
   carrierCells: CellIndex,
   map: CoordinateMap,
   carrierSide: Side,
-): { patch?: CellPatch; disagreement?: Disagreement; report?: ReportEntry } {
+): CellDecision {
   const side = otherSide(carrierSide);
-  if (change.kind === "format") {
-    return {
-      report: { category: "not-carried", side, sheetName, ref: change.ref, label: "Format change" },
-    };
-  }
+  const nonInput = nonInputDecision(change, sheetName, side);
+  if (nonInput !== null) return nonInput;
+
   const target = map.mapRef(change.ref);
   if (target === null) {
-    return {
-      report: {
-        category: "not-carried",
-        side,
-        sheetName,
-        ref: change.ref,
-        label: `${describeChange(change)} — the row or column no longer exists on the kept side`,
-      },
-    };
+    return reportedOnly(
+      side,
+      sheetName,
+      change.ref,
+      `${describeChange(change)} — the row or column no longer exists on the kept side`,
+    );
   }
   const base = originCells.get(change.ref) ?? null;
   const kept = carrierCells.get(target) ?? null;
@@ -143,9 +170,7 @@ function decideCell(
       report: { category: "applied", side, sheetName, ref: target, label: describeChange(change) },
     };
   }
-  return {
-    disagreement: disagreement(sheetId, target, base, kept, incoming, carrierSide),
-  };
+  return { disagreement: disagreement(sheetId, target, base, kept, incoming, carrierSide) };
 }
 
 function coordinateMapFor(

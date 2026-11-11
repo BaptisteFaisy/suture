@@ -104,11 +104,30 @@ export async function trackFile(
   return await refresh({ ...session, workbookId: record.id, store });
 }
 
+/**
+ * Every version of the tracked workbook, across all its scenarios, newest
+ * first. The history thread shows the whole graph — not just the reference —
+ * and the compare screen must be able to pick a version from any scenario.
+ */
+export async function allVersions(store: SutureStore): Promise<VersionMeta[]> {
+  const scenarios = await store.listScenarios();
+  const seen = new Map<string, VersionMeta>();
+  for (const scenario of scenarios) {
+    const versions = await store.listVersions(scenario.name);
+    for (const version of versions) {
+      if (!seen.has(version.id)) {
+        seen.set(version.id, { ...version, scenario: scenario.name });
+      }
+    }
+  }
+  return [...seen.values()].sort((left, right) => right.timestamp - left.timestamp);
+}
+
 /** Re-reads the version list and the scenarios after any change. */
 export async function refresh(session: SessionState): Promise<SessionState> {
   if (session.store === null) return session;
   const [versions, scenarios] = await Promise.all([
-    session.store.listVersions(),
+    allVersions(session.store),
     session.store.listScenarios(),
   ]);
   return {
@@ -216,7 +235,13 @@ export function comparisonView(session: SessionState): ComparisonView | null {
   return toComparisonView(session.changeSet, session.filter);
 }
 
-/** Plans a combine between two versions, from their common origin. */
+/** A side is either a scenario name (its head is used) or a version id. */
+export function resolveSide(session: SessionState, side: string): string {
+  const scenario = session.scenarios.find((item) => item.name === side);
+  return scenario === undefined ? side : scenario.head;
+}
+
+/** Plans a combine between two sides, from their common origin. */
 export async function planCombine(
   deps: AdapterDeps,
   session: SessionState,
@@ -224,20 +249,22 @@ export async function planCombine(
   sideB: string,
 ): Promise<SessionState> {
   if (session.store === null) return session;
-  const origin = commonOrigin(indexVersions(session.versions), sideA, sideB);
+  const a = resolveSide(session, sideA);
+  const b = resolveSide(session, sideB);
+  const origin = commonOrigin(indexVersions(session.versions), a, b);
   if (origin === null) throw new Error("error.no-common-origin");
-  const [originView, a, b] = await Promise.all([
+  const [originView, aView, bView] = await Promise.all([
     session.store.getCanonical(origin),
-    session.store.getCanonical(sideA),
-    session.store.getCanonical(sideB),
+    session.store.getCanonical(a),
+    session.store.getCanonical(b),
   ]);
-  const plan = deps.engines.planMerge(originView, a, b);
+  const plan = deps.engines.planMerge(originView, aView, bView);
   return {
     ...session,
     plan,
     choices: {},
-    sides: { origin, a: sideA, b: sideB },
-    sheetNames: namesOf(plan.carrier === "A" ? a : b),
+    sides: { origin, a, b },
+    sheetNames: namesOf(plan.carrier === "A" ? aView : bView),
   };
 }
 

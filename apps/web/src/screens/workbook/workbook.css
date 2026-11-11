@@ -403,3 +403,31 @@
     transition: none;
   }
 }
+
+/* Barre d'actions de l'écran classeur : comparaison et réunion. */
+.workbook-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin: 0.4rem 0 1rem;
+}
+
+.workbook-actions button {
+  font: inherit;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--thread);
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.workbook-actions button:hover {
+  border-color: var(--scar);
+  color: var(--scar);
+}
+
+.workbook-actions button:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: 2px;
+}

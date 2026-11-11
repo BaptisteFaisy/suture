@@ -79,8 +79,9 @@ export async function finalizeCombine(
     report,
   });
 
-  const next = await refresh({ ...session, plan: null, choices: {}, report: resolved.report });
-  return next;
+  // The plan is kept so the last step can show the report; only the pending
+  // decisions are cleared.
+  return refresh({ ...session, choices: {}, report: resolved.report });
 }
 
 /** Restores a version as a new version, then refreshes the history. */

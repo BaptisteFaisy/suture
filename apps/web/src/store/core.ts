@@ -63,12 +63,16 @@ export function initialState(registry: Registry): CoreState {
 export function createCore(deps: AdapterDeps, build: (core: Core) => StoreAdapter): Core {
   const registry = createRegistry(deps.host);
   const listeners = new Set<() => void>();
+  let cached: StoreAdapter | null = null;
   const core: Core = {
     deps,
     registry,
     state: initialState(registry),
     set: (patch) => {
       core.state = { ...core.state, ...patch };
+      // Drop the cached snapshot only when state actually changes, so
+      // `useSyncExternalStore` gets a stable reference between updates.
+      cached = null;
       for (const listener of listeners) listener();
     },
     subscribe: (listener) => {
@@ -77,7 +81,10 @@ export function createCore(deps: AdapterDeps, build: (core: Core) => StoreAdapte
         listeners.delete(listener);
       };
     },
-    snapshot: () => build(core),
+    snapshot: () => {
+      if (cached === null) cached = build(core);
+      return cached;
+    },
   };
   return core;
 }
