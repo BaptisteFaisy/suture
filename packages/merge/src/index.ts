@@ -4,8 +4,8 @@
  * Implements the combine algorithm of section B.8, the contract in
  * `@suture/contracts` and the `no-silent-loss` invariant.
  */
-export { mergeEngine, planMerge, resolveMerge } from "./plan";
-export { applyChoice, cellText, disagreementId, resolveCell } from "./cells";
+export { mergeEngine, planMerge, resolveMerge, nameOf } from "./plan";
+export { applyChoice, cellText, disagreementId } from "./cells";
 export {
   chooseCarrier,
   sameStructuralChanges,
@@ -15,5 +15,7 @@ export {
   type SheetStructure,
   type StructuralCase,
 } from "./carrier";
+export { buildCoordinateMap, identityMap, type CoordinateMap } from "./coordinates";
+export { combineSheet, describeChange, otherSide, type CellIndex } from "./sheet-plan";
 
 export const packageName = "@suture/merge";

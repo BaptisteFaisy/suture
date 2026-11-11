@@ -1,165 +1,192 @@
+/**
+ * `planMerge` — the three-way combine of B.8: pick the carrier, combine each
+ * sheet, and account for every change of both sides.
+ */
 import type {
-  CanonicalSheet,
   CanonicalWorkbook,
-  CellPatch,
-  CellRecord,
-  Disagreement,
+  ChangeSet,
   DisagreementChoice,
   MergeEngine,
   MergePlan,
   ReportEntry,
   ResolvedMerge,
   SheetFallback,
-  Side,
 } from "@suture/contracts";
-import { compare, type PartsByPath } from "@suture/diff";
-import { applyChoice, resolveCell } from "./cells";
+import { compare } from "@suture/diff";
+import { chooseCarrier, structures, type SheetStructure } from "./carrier";
+import { applyChoice } from "./cells";
+import { combineSheet, describeChange, otherSide } from "./sheet-plan";
 
-/** Index of cells of one sheet by their A1 ref. */
-export type SheetCellMap = Map<string, CellRecord>;
+const NO_STRUCTURE: Omit<SheetStructure, "sheetId"> = {
+  structuralA: false,
+  structuralB: false,
+  sameStructure: false,
+};
 
-export function mapOf(sheet: CanonicalSheet | undefined): SheetCellMap {
-  const map = new Map<string, CellRecord>();
-  if (sheet === undefined) return map;
-  for (const cell of sheet.cells) map.set(cell.ref, cell);
-  return map;
-}
-
-/** Three-way combine plan computation (B.8). */
+/** Builds the combine plan of an origin and two divergent versions. */
 export function planMerge(
   origin: CanonicalWorkbook,
   a: CanonicalWorkbook,
   b: CanonicalWorkbook,
-  partsA: PartsByPath = {},
-  partsB: PartsByPath = {},
 ): MergePlan {
   const deltaA = compare(origin, a);
   const deltaB = compare(origin, b);
-  const patches: CellPatch[] = [];
-  const disagreements: Disagreement[] = [];
-  const fallbacks: SheetFallback[] = [];
-  const report: ReportEntry[] = [];
+  const sheetStructures = structures(deltaA, deltaB);
+  const carrier = chooseCarrier(sheetStructures);
+  const carrierView = carrier === "A" ? a : b;
+  const otherView = carrier === "A" ? b : a;
+  const carrierDelta = carrier === "A" ? deltaA : deltaB;
+  const otherDelta = carrier === "A" ? deltaB : deltaA;
 
-  // Sheet matching: union of all sheets across O, A, B.
-  const sheetIds = new Set<number>([
-    ...origin.sheets.map((s) => s.meta.sheetId),
-    ...a.sheets.map((s) => s.meta.sheetId),
-    ...b.sheets.map((s) => s.meta.sheetId),
-  ]);
+  const plan: MergePlan = { carrier, patches: [], disagreements: [], fallbacks: [], report: [] };
+  const covered = new Set<string>();
 
-  for (const sheetId of [...sheetIds].sort((x, y) => x - y)) {
-    const sheetO = origin.sheets.find((s) => s.meta.sheetId === sheetId);
-    const sheetA = a.sheets.find((s) => s.meta.sheetId === sheetId);
-    const sheetB = b.sheets.find((s) => s.meta.sheetId === sheetId);
-
-    const diffA = deltaA.sheets.find((s) => s.sheetId === sheetId);
-    const diffB = deltaB.sheets.find((s) => s.sheetId === sheetId);
-    const structA = diffA?.structural ?? false;
-    const structB = diffB?.structural ?? false;
-
-    // Case 4: both sides made divergent structural changes -> safe fallback.
-    if (structA && structB) {
-      fallbacks.push({
+  for (const sheetId of sheetIdsOf(origin, a, b)) {
+    const structure = sheetStructures.find((item) => item.sheetId === sheetId) ?? {
+      sheetId,
+      ...NO_STRUCTURE,
+    };
+    const sheetName = nameOf(carrierView, otherView, origin, sheetId);
+    const result = combineSheet({
+      sheetId,
+      sheetName,
+      origin,
+      carrier: carrierView,
+      other: otherView,
+      carrierSide: carrier,
+      otherChanges: otherDelta.sheets.find((sheet) => sheet.sheetId === sheetId),
+      structure,
+    });
+    plan.patches.push(...result.patches);
+    plan.disagreements.push(...result.disagreements);
+    plan.report.push(...result.report);
+    for (const entry of result.report) covered.add(`${sheetId}:${entry.ref ?? ""}`);
+    if (result.fallback !== undefined) {
+      const fallback: SheetFallback = {
         sheetId,
         reason: "structure-divergence",
-        discardedSummary: diffB?.summary ?? deltaB.summary,
-      });
-      report.push({
-        category: "not-carried",
-        side: "B",
-        sheetName: sheetA?.meta.name ?? sheetB?.meta.name ?? String(sheetId),
-        label: "Sheet structure changed on both sides; keep chosen side manually",
-      });
-      continue;
-    }
-
-    // Combine cells of this sheet.
-    const mapO = mapOf(sheetO);
-    const mapA = mapOf(sheetA);
-    const mapB = mapOf(sheetB);
-    const allRefs = new Set<string>([...mapO.keys(), ...mapA.keys(), ...mapB.keys()]);
-    const sheetName = sheetA?.meta.name ?? sheetB?.meta.name ?? "Sheet";
-
-    for (const ref of allRefs) {
-      const cellO = mapO.get(ref) ?? null;
-      const cellA = mapA.get(ref) ?? null;
-      const cellB = mapB.get(ref) ?? null;
-      const outcome = resolveCell(sheetId, ref, cellO, cellA, cellB);
-
-      if (outcome.patch !== undefined) {
-        patches.push(outcome.patch);
-        report.push({
-          category: "applied",
-          side: outcome.patch.source,
-          sheetName,
-          ref,
-          label: outcome.patch.record?.input ?? "(empty)",
-        });
-      } else if (outcome.disagreement !== undefined) {
-        disagreements.push(outcome.disagreement);
-      } else if (outcome.appliedSame === true) {
-        report.push({
-          category: "applied",
-          side: "both",
-          sheetName,
-          ref,
-          label: cellA?.input ?? "(empty)",
-        });
-      }
+        discardedSummary: result.fallback.discarded,
+      };
+      plan.fallbacks.push(fallback);
     }
   }
 
-  // Non-cell parts changed on B: reported as not carried over (carrier is A).
-  const nonCellB = compare(origin, b, {}, partsB).partChanges;
-  for (const part of nonCellB) {
-    report.push({
+  reportCarrierSide(plan, carrierDelta, carrierView, carrier, covered);
+  reportOtherParts(plan, otherDelta, carrier);
+  return plan;
+}
+
+function sheetIdsOf(...workbooks: CanonicalWorkbook[]): number[] {
+  const ids = new Set<number>();
+  for (const workbook of workbooks) {
+    for (const sheet of workbook.sheets) ids.add(sheet.meta.sheetId);
+  }
+  return [...ids].sort((x, y) => x - y);
+}
+
+export function nameOf(
+  first: CanonicalWorkbook,
+  second: CanonicalWorkbook,
+  third: CanonicalWorkbook,
+  sheetId: number,
+): string {
+  for (const workbook of [first, second, third]) {
+    const sheet = workbook.sheets.find((item) => item.meta.sheetId === sheetId);
+    if (sheet !== undefined) return sheet.meta.name;
+  }
+  return `Sheet ${sheetId}`;
+}
+
+/** Every change of the carrier side is already in the file: say so. */
+function reportCarrierSide(
+  plan: MergePlan,
+  carrierDelta: ChangeSet,
+  carrierView: CanonicalWorkbook,
+  carrier: "A" | "B",
+  covered: Set<string>,
+): void {
+  for (const sheet of carrierDelta.sheets) {
+    const name = nameOf(carrierView, carrierView, carrierView, sheet.sheetId);
+    for (const change of sheet.cells) {
+      if (covered.has(`${sheet.sheetId}:${change.ref}`)) continue;
+      plan.report.push({
+        category: "applied",
+        side: carrier,
+        sheetName: name,
+        ref: change.ref,
+        label: describeChange(change),
+      });
+    }
+    for (const row of sheet.rowsChanged) {
+      plan.report.push({
+        category: "applied",
+        side: carrier,
+        sheetName: name,
+        label: `Row ${row.type} (${row.cells.length} cell(s))`,
+      });
+    }
+  }
+  for (const change of carrierDelta.sheetChanges) {
+    plan.report.push({
+      category: "applied",
+      side: carrier,
+      sheetName: change.after ?? change.before ?? `Sheet ${change.sheetId}`,
+      label: `Sheet ${change.type}`,
+    });
+  }
+}
+
+/** Non-cell parts and sheets only the other side has cannot be carried. */
+function reportOtherParts(plan: MergePlan, otherDelta: ChangeSet, carrier: "A" | "B"): void {
+  const side = otherSide(carrier);
+  for (const part of otherDelta.partChanges) {
+    plan.report.push({
       category: "not-carried",
-      side: "B",
+      side,
       sheetName: "(workbook)",
       label: `${part.label} (${part.type})`,
       detail: part.path,
     });
   }
-
-  return {
-    carrier: "A",
-    patches,
-    disagreements,
-    fallbacks,
-    report,
-  };
+  for (const change of otherDelta.sheetChanges) {
+    if (change.type !== "added") continue;
+    plan.report.push({
+      category: "not-carried",
+      side,
+      sheetName: change.after ?? `Sheet ${change.sheetId}`,
+      label: "Sheet added on this side only: kept out of the combined file",
+    });
+  }
 }
 
-/** Applies user choices to the plan. Throws if any disagreement is unanswered. */
+/** Applies the user's decisions; refuses to save while one is open. */
 export function resolveMerge(
   plan: MergePlan,
   choices: DisagreementChoice[],
 ): ResolvedMerge {
-  const choiceMap = new Map<string, DisagreementChoice>();
-  for (const c of choices) choiceMap.set(c.id, c);
+  const byId = new Map<string, DisagreementChoice>();
+  for (const choice of choices) byId.set(choice.id, choice);
 
-  for (const d of plan.disagreements) {
-    if (!choiceMap.has(d.id)) {
-      throw new Error(`Unresolved disagreement at ${d.ref}`);
-    }
+  const missing = plan.disagreements.filter((item) => byId.get(item.id) === undefined);
+  if (missing.length > 0) {
+    throw new Error(`${missing.length} disagreement(s) still open`);
   }
 
   const patches = [...plan.patches];
-  const report = [...plan.report];
-
-  for (const d of plan.disagreements) {
-    const choice = choiceMap.get(d.id)!;
-    const patch = applyChoice(d, choice);
+  const report: ReportEntry[] = [...plan.report];
+  for (const item of plan.disagreements) {
+    const choice = byId.get(item.id);
+    if (choice === undefined) continue;
+    const patch = applyChoice(item, choice);
     patches.push(patch);
     report.push({
       category: "decided",
-      side: patch.source,
-      sheetName: String(d.sheetId),
-      ref: d.ref,
-      label: patch.record?.input ?? "(empty)",
+      side: choice.pick === "custom" ? plan.carrier : choice.pick,
+      sheetName: `Sheet ${item.sheetId}`,
+      ref: item.ref,
+      label: patch.record === null ? "(cleared)" : patch.record.input,
     });
   }
-
   return { patches, report };
 }
 
