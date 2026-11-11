@@ -15,9 +15,11 @@
     "build": "pnpm --filter @suture/web build",
     "dev": "pnpm --filter @suture/web dev",
     "guards": "node scripts/vocabulary-guard.mjs && node scripts/check-line-limits.mjs",
-    "ci:all": "pnpm typecheck && pnpm lint && pnpm test:run && pnpm build && pnpm guards"
+    "ci:all": "pnpm typecheck && pnpm lint && pnpm test:run && pnpm build && pnpm guards",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.1.0",
     "@types/node": "^24.0.0",

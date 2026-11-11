@@ -11,6 +11,8 @@ export default tseslint.config(
       "**/dist/**",
       "**/coverage/**",
       "apps/web/dist/**",
+      "e2e/**",
+      "playwright.config.ts",
     ],
   },
   ...tseslint.configs.recommended,
