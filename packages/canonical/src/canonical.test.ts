@@ -156,6 +156,9 @@ describe("deriveCanonical — formulas", () => {
     ]);
   });
 
+});
+
+describe("deriveCanonical — L1C1", () => {
   it("converts a plain formula to L1C1 relative to its cell", () => {
     const cells = cellsOf(
       '<row r="14"><c r="B14"><f>SUM(B2:B13)</f><v>131500</v></c></row>',
