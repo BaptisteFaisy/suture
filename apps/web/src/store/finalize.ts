@@ -6,6 +6,7 @@
 import type { ReportEntry, SutureStore } from "@suture/contracts";
 import type { AdapterDeps, SessionState } from "./actions";
 import { refresh } from "./actions";
+import { writeLastExport } from "./export-reminder";
 import type { Registry } from "./registry";
 
 const CATEGORY_LABELS: Record<ReportEntry["category"], string> = {
@@ -101,6 +102,9 @@ export async function exportWorkbook(deps: AdapterDeps, session: SessionState, n
   if (session.store === null) return;
   const bytes = await session.store.exportBundle();
   deps.host.download(`${name.replace(/\.(xlsx|xlsm)$/i, "")}-suture.zip`, bytes);
+  // Every export goes through here, so the reminder of SUT-N-05 has one date
+  // to read: the moment this archive was offered to the user.
+  writeLastExport(deps.host.settings, deps.host.now());
 }
 
 /** Downloads one past version exactly as it was stored (SUT-F-05). */

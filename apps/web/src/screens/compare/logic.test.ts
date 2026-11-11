@@ -32,6 +32,8 @@ function view(rows: ComparisonRow[]): ComparisonView {
       formats: rows.filter((entry) => entry.nature === "format").length,
       rowsInserted: 1,
       rowsDeleted: 0,
+      colsInserted: 0,
+      colsDeleted: 0,
       partsChanged: 0,
     },
     otherParts: [],
@@ -47,11 +49,18 @@ const EMPTY: ComparisonView = {
     formats: 0,
     rowsInserted: 0,
     rowsDeleted: 0,
+    colsInserted: 0,
+    colsDeleted: 0,
     partsChanged: 0,
   },
   otherParts: [],
   filter: { sheetId: "all", nature: "all" },
 };
+
+/** A comparison whose only differences are structural columns. */
+function columnsOnly(colsInserted: number, colsDeleted: number): ComparisonView {
+  return { ...EMPTY, summary: { ...EMPTY.summary, colsInserted, colsDeleted } };
+}
 
 describe("nature and symbol (SUT-N-07)", () => {
   it("maps the three natures to a symbol", () => {
@@ -183,6 +192,37 @@ describe("deterministic summary — locales and counts", () => {
   });
 });
 
+describe("columns in the summary", () => {
+  it("counts the columns that were added and removed, in both languages", () => {
+    expect(buildSummary(columnsOnly(2, 1), [], "en", en).headline).toBe(
+      "2 columns added, 1 column removed",
+    );
+    expect(buildSummary(columnsOnly(2, 1), [], "fr", fr).headline).toBe(
+      "2 colonnes ajoutées, 1 colonne supprimée",
+    );
+  });
+
+  it("keeps the column counts next to the row counts", () => {
+    const withRows: ComparisonView = {
+      ...columnsOnly(1, 0),
+      summary: { ...columnsOnly(1, 0).summary, rowsInserted: 2 },
+    };
+    expect(buildSummary(withRows, [], "en", en).headline).toBe("2 rows added, 1 column added");
+  });
+
+  it("reads the column counts from the contract, never from the rows", () => {
+    expect(summaryCounts(columnsOnly(4, 3)).colsAdded).toBe(4);
+    expect(summaryCounts(columnsOnly(4, 3)).colsRemoved).toBe(3);
+  });
+
+  it("picks the singular form for one column", () => {
+    expect(counted(en, "en", "summary.colsAdded", 1)).toBe("1 column added");
+    expect(counted(en, "en", "summary.colsRemoved", 1)).toBe("1 column removed");
+    expect(counted(fr, "fr", "summary.colsAdded", 1)).toBe("1 colonne ajoutée");
+    expect(counted(fr, "fr", "summary.colsRemoved", 2)).toBe("2 colonnes supprimées");
+  });
+});
+
 describe("empty states", () => {
   it("detects an identical workbook", () => {
     expect(isIdentical(EMPTY)).toBe(true);
@@ -190,6 +230,11 @@ describe("empty states", () => {
 
   it("reports a comparison that holds differences", () => {
     expect(isIdentical(view([row({})]))).toBe(false);
+  });
+
+  it("is not identical when only the columns changed", () => {
+    expect(isIdentical(columnsOnly(1, 0))).toBe(false);
+    expect(isIdentical(columnsOnly(0, 1))).toBe(false);
   });
 });
 
