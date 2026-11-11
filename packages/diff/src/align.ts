@@ -45,17 +45,23 @@ function walkBack(
   return pairs.reverse();
 }
 
-/** Number of cells two lines share, matched by their cross index. */
+/**
+ * Number of cells two lines share, matched by their cross index.
+ *
+ * Sharing is positional, not by value: a row where three amounts out of five
+ * were retyped still shares all five cells, and must be paired as "modified"
+ * rather than split into a deletion and an insertion (B.7 step 2).
+ */
 export function sharedCellCount(
   a: CellRecord[],
   b: CellRecord[],
   key: (ref: string) => string,
 ): number {
-  const mapA = new Map<string, string>();
-  for (const cell of a) mapA.set(key(cell.ref), cell.input);
+  const keysA = new Set<string>();
+  for (const cell of a) keysA.add(key(cell.ref));
   let count = 0;
   for (const cell of b) {
-    if (mapA.get(key(cell.ref)) === cell.input) count += 1;
+    if (keysA.has(key(cell.ref))) count += 1;
   }
   return count;
 }
