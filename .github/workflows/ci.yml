@@ -1,11 +1,13 @@
 name: CI
 
-# Suture CI : typecheck, lint, tests (unitaires + propriétés), build et garde
-# concours. Le check publié s'appelle `ci` (c'est le nom du job qui nomme le
-# check) : il est exigé par le ruleset de `main` et par la file Mergify, comme
-# `ci-budget` et `couche0`. Budget : verdict en 5 minutes max (règle user
-# « CI-BUDGET-5MIN » de l'espace de travail). Les E2E Playwright sont hors PR
-# (workflow dédié sur main).
+# Suture CI : quatre contrôles — types, lint, tests (unitaires + propriétés),
+# construction. Ils sont répartis sur DEUX jobs parallèles (`ci` et `build`) :
+# sur un exécuteur chargé, un job unique dépasse le budget de 5 minutes.
+#
+# Le check publié `ci` est exigé par le ruleset de `main` et par la file
+# Mergify, comme `ci-budget` et `couche0` ; `build` est exigé aussi.
+# Budget : verdict en 5 minutes max par job (règle « CI-BUDGET-5MIN »).
+# Les E2E Playwright sont hors PR (workflow dédié sur main).
 on:
   pull_request:
   merge_group:
@@ -34,7 +36,7 @@ jobs:
 
       # Runners self-hosted persistants : nettoyage du workspace, mais on
       # conserve les node_modules (réinstallés à l'identique par pnpm selon le
-      # lockfile, store partagé entre runners sous ~/.local/share/pnpm).
+      # lockfile ; store pnpm partagé entre les dix workers du r630).
       - name: Nettoyage du workspace
         shell: bash
         run: git clean -ffdx -e node_modules
@@ -51,15 +53,18 @@ jobs:
         shell: bash
         run: |
           if [ -f pnpm-lock.yaml ]; then
-            pnpm install --frozen-lockfile
+            pnpm install --frozen-lockfile --prefer-offline
           else
-            pnpm install
+            pnpm install --prefer-offline
           fi
 
-      - name: Types + lint + tests + build
+      - name: Types + lint + tests
         if: hashFiles('package.json') != ''
         shell: bash
-        run: pnpm ci:all
+        run: |
+          pnpm typecheck
+          pnpm lint
+          pnpm test:run
 
       # Garde du concours Kiroween : licence MIT détectable, dossier .kiro
       # présent à la racine, suivi par Git et jamais ignoré.
@@ -87,3 +92,45 @@ jobs:
           python3 .github/fireworks/test_scope_agent.py
           python3 .github/fireworks/test_union_journal.py
           python3 .github/fireworks/test_quota.py
+
+  build:
+    name: build
+    runs-on: [self-hosted, linux, x64, suture-worker]
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          clean: false
+
+      - name: Nettoyage du workspace
+        shell: bash
+        run: git clean -ffdx -e node_modules
+
+      - name: Outillage Node (r630 user space)
+        shell: bash
+        run: |
+          echo "$HOME/node24/bin" >> "$GITHUB_PATH"
+          node --version
+          pnpm --version
+
+      - name: Dépendances (pnpm, lockfile figé)
+        if: hashFiles('package.json') != ''
+        shell: bash
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile --prefer-offline
+          else
+            pnpm install --prefer-offline
+          fi
+
+      - name: Construction de production
+        if: hashFiles('package.json') != ''
+        shell: bash
+        run: pnpm build
+
+      - name: Gardes de dépôt (vocabulaire, taille des fichiers)
+        if: hashFiles('package.json') != ''
+        shell: bash
+        run: pnpm guards
