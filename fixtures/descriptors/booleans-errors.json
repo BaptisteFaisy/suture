@@ -1,0 +1,30 @@
+{
+  "name": "Booleans and errors",
+  "output": "booleans-errors.xlsx",
+  "options": {
+    "sharedStrings": true
+  },
+  "sheets": [
+    {
+      "name": "Contrôles",
+      "cells": [
+        { "ref": "A1", "value": "Contrôle" },
+        { "ref": "B1", "value": "Résultat" },
+        { "ref": "A2", "value": "Budget validé" },
+        { "ref": "B2", "value": true },
+        { "ref": "A3", "value": "Signature manquante" },
+        { "ref": "B3", "value": false },
+        { "ref": "A4", "value": "Division par zéro" },
+        { "ref": "B4", "error": "#DIV/0!" },
+        { "ref": "A5", "value": "Référence absente" },
+        { "ref": "B5", "error": "#REF!" },
+        { "ref": "A6", "value": "Valeur invalide" },
+        { "ref": "B6", "error": "#VALUE!" },
+        { "ref": "A7", "value": "Non disponible" },
+        { "ref": "B7", "error": "#N/A" },
+        { "ref": "A8", "value": "Nom invalide" },
+        { "ref": "B8", "error": "#NAME?" }
+      ]
+    }
+  ]
+}

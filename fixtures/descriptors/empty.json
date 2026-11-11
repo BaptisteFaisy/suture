@@ -1,0 +1,13 @@
+{
+  "name": "Empty workbook",
+  "output": "empty.xlsx",
+  "options": {
+    "sharedStrings": true
+  },
+  "sheets": [
+    {
+      "name": "Feuille vide",
+      "cells": []
+    }
+  ]
+}
