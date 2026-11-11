@@ -52,9 +52,12 @@ jobs:
           pnpm --version
 
       - name: Dépendances (pnpm, lockfile figé)
-        if: hashFiles('package.json') != ''
         shell: bash
         run: |
+          if [ ! -f package.json ]; then
+            echo "::notice::pas de workspace Node sur cette branche — étapes Node sautées"
+            exit 0
+          fi
           if [ -f pnpm-lock.yaml ]; then
             pnpm install --frozen-lockfile --prefer-offline
           else
@@ -62,9 +65,12 @@ jobs:
           fi
 
       - name: Types + lint + tests
-        if: hashFiles('package.json') != ''
         shell: bash
         run: |
+          if [ ! -f package.json ]; then
+            echo "::notice::pas de workspace Node sur cette branche — étapes Node sautées"
+            exit 0
+          fi
           pnpm typecheck
           pnpm lint
           pnpm test:run
@@ -122,9 +128,12 @@ jobs:
           pnpm --version
 
       - name: Dépendances (pnpm, lockfile figé)
-        if: hashFiles('package.json') != ''
         shell: bash
         run: |
+          if [ ! -f package.json ]; then
+            echo "::notice::pas de workspace Node sur cette branche — étapes Node sautées"
+            exit 0
+          fi
           if [ -f pnpm-lock.yaml ]; then
             pnpm install --frozen-lockfile --prefer-offline
           else
@@ -132,11 +141,19 @@ jobs:
           fi
 
       - name: Construction de production
-        if: hashFiles('package.json') != ''
         shell: bash
-        run: pnpm build
+        run: |
+          if [ ! -f package.json ]; then
+            echo "::notice::pas de workspace Node sur cette branche — construction sautée"
+            exit 0
+          fi
+          pnpm build
 
       - name: Gardes de dépôt (vocabulaire, taille des fichiers)
-        if: hashFiles('package.json') != ''
         shell: bash
-        run: pnpm guards
+        run: |
+          if [ ! -f package.json ]; then
+            echo "::notice::pas de workspace Node sur cette branche — gardes sautées"
+            exit 0
+          fi
+          pnpm guards
