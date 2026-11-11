@@ -1,0 +1,32 @@
+{
+  "name": "Shared formulas",
+  "output": "shared-formulas.xlsx",
+  "options": {
+    "sharedStrings": true,
+    "sharedFormulas": true
+  },
+  "sheets": [
+    {
+      "name": "Calculs",
+      "cells": [
+        { "ref": "A1", "value": "Quantité" },
+        { "ref": "B1", "value": "Prix" },
+        { "ref": "C1", "value": "Total" },
+        { "ref": "A2", "value": "Article A" },
+        { "ref": "B2", "value": 10 },
+        { "ref": "C2", "formula": "B2*2", "cached": 20, "shared": { "si": "0", "master": true, "ref": "C2:C5" } },
+        { "ref": "A3", "value": "Article B" },
+        { "ref": "B3", "value": 20 },
+        { "ref": "C3", "shared": { "si": "0" }, "cached": 40 },
+        { "ref": "A4", "value": "Article C" },
+        { "ref": "B4", "value": 30 },
+        { "ref": "C4", "shared": { "si": "0" }, "cached": 60 },
+        { "ref": "A5", "value": "Article D" },
+        { "ref": "B5", "value": 40 },
+        { "ref": "C5", "shared": { "si": "0" }, "cached": 80 },
+        { "ref": "A7", "value": "Somme" },
+        { "ref": "B7", "formula": "SUM(C2:C5)", "cached": 200 }
+      ]
+    }
+  ]
+}

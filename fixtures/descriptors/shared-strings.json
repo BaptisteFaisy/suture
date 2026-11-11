@@ -1,0 +1,21 @@
+{
+  "name": "Shared strings",
+  "output": "shared-strings.xlsx",
+  "options": {
+    "sharedStrings": true
+  },
+  "sheets": [
+    {
+      "name": "Textes",
+      "cells": [
+        { "ref": "A1", "value": "Repeated label" },
+        { "ref": "A2", "value": "Repeated label" },
+        { "ref": "A3", "value": "Another label" },
+        { "ref": "B1", "value": "Repeated label" },
+        { "ref": "C1", "value": "Line one\nLine two" },
+        { "ref": "C2", "value": "Tab\tinside" },
+        { "ref": "C3", "value": "Backslash \\ and quote \" apostrophe '" }
+      ]
+    }
+  ]
+}

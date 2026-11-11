@@ -1,0 +1,361 @@
+/* Combine assistant — a sewing workshop: thread, stitches, snags.
+   Sober and light; information is never carried by colour alone. */
+
+.combine-step {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--thread);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem 1.2rem;
+  margin-bottom: 1.25rem;
+}
+
+.combine-step h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+}
+
+.step-count {
+  color: var(--ink-soft);
+  margin: 0 0 0.75rem;
+}
+
+.step-hint {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.blocking-note {
+  border-left: 3px solid var(--scar);
+  background: #fdf3f2;
+  color: var(--ink);
+  padding: 0.6rem 0.8rem;
+  margin: 0 0 0.9rem;
+}
+
+.error-note {
+  border-left: 3px solid var(--scar);
+  background: #fdf3f2;
+  padding: 0.6rem 0.8rem;
+  margin: 0.6rem 0;
+}
+
+/* Step indicator: three named questions, not numbers only. */
+.step-indicator ol {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.2rem;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.step-indicator li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  color: var(--ink-soft);
+  border-bottom: 2px dashed transparent;
+  padding-bottom: 0.2rem;
+}
+
+.step-indicator li.current {
+  color: var(--ink);
+  border-bottom-color: var(--thread);
+  font-weight: 600;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  border: 1px solid var(--thread);
+  font-size: 0.8rem;
+}
+
+.step-indicator li.current .step-number {
+  background: var(--thread);
+  color: #fff;
+}
+
+.sheet-group {
+  margin-bottom: 1rem;
+}
+
+.sheet-name {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+}
+
+.change-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.change-table th,
+.change-table td {
+  text-align: left;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.change-table thead th {
+  color: var(--ink-soft);
+  font-weight: 600;
+  border-bottom: 2px solid var(--thread);
+}
+
+.cell-ref {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-weight: 600;
+}
+
+/* Disagreements are snags: a small red thread mark, a gap in the thread. */
+.disagreement-list,
+.fallback-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.disagreement {
+  border: 1px solid var(--line);
+  border-left: 3px dashed var(--scar);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.9rem;
+  background: var(--panel);
+}
+
+.disagreement.settled {
+  border-left-style: solid;
+  border-left-color: var(--thread);
+}
+
+.disagreement-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 0.78rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+
+.open-badge {
+  color: var(--scar);
+}
+
+.settled-badge {
+  color: var(--thread);
+}
+
+.disagreement-values {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.5rem;
+  margin: 0 0 0.6rem;
+}
+
+.disagreement-values dt {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+.disagreement-values dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.disagreement-choices,
+.fallback-choices {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem 0.7rem;
+  margin: 0;
+}
+
+.disagreement-choices legend,
+.fallback-choices legend {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  padding: 0 0.25rem;
+}
+
+.disagreement-choices label,
+.fallback-choices label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-right: 1rem;
+}
+
+.custom-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.custom-entry input[type="text"] {
+  font: inherit;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--ink);
+  min-width: 10rem;
+}
+
+.custom-entry button {
+  font: inherit;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.field-hint {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  margin: 0;
+  width: 100%;
+}
+
+/* Safe fallback notice. */
+.fallback {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--scar);
+  border-radius: var(--radius);
+  background: #fdf7f6;
+  padding: 0.8rem 1rem;
+}
+
+.fallback-title {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.snag-mark {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px dashed var(--scar);
+  display: inline-block;
+  flex: none;
+}
+
+.fallback-explain {
+  margin: 0 0 0.7rem;
+}
+
+.lost-list {
+  margin: 0.3rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.report {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.report-section h4 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.report-count {
+  color: var(--ink-soft);
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+
+.step-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.link-button {
+  font: inherit;
+  background: none;
+  border: none;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.3rem 0.2rem;
+}
+
+.two-files {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem 1.2rem;
+  margin-top: 1.25rem;
+  background: var(--panel);
+}
+
+.two-files h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+
+.two-files-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.75rem;
+  margin: 0.8rem 0;
+}
+
+.file-slot {
+  padding: 0.9rem;
+}
+
+.file-slot input[type="file"] {
+  display: block;
+  margin: 0.4rem 0;
+  font: inherit;
+  color: var(--ink);
+}
+
+.file-slot .dropzone-title {
+  font-weight: 600;
+}
+
+.combine-step button:focus-visible,
+.two-files button:focus-visible,
+.custom-entry input:focus-visible,
+.file-slot input:focus-visible,
+.disagreement-choices input:focus-visible,
+.fallback-choices input:focus-visible,
+.link-button:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disagreement,
+  .fallback {
+    transition: none;
+  }
+}
