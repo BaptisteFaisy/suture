@@ -122,11 +122,20 @@ function extractStrings(source) {
     for (const match of code.matchAll(pattern)) {
       const text = match[1] ?? "";
       if (text.trim().length === 0) continue;
+      // Module specifiers are not user-facing text.
+      if (isModuleSpecifier(code, match.index)) continue;
       const line = code.slice(0, match.index).split("\n").length;
       chunks.push({ text, line });
     }
   }
   return chunks;
+}
+
+/** True when the literal at `index` is an import/export module specifier. */
+function isModuleSpecifier(code, index) {
+  const lineStart = code.lastIndexOf("\n", index) + 1;
+  const lineHead = code.slice(lineStart, index).trim();
+  return /^(import|export)\b/.test(lineHead) || /\bfrom\s*$/.test(lineHead);
 }
 
 function bannedWordsIn(text) {

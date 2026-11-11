@@ -175,3 +175,6 @@ export function createStubStore(): StoreAdapter {
     clearStorage: async () => undefined,
   };
 }
+
+export { useRealStore } from "./useRealStore";
+export { createBrowserHost } from "./browserHost";
