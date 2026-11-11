@@ -40,6 +40,8 @@ async function fingerprint(store: SutureStore, versionId: string): Promise<strin
 }
 
 /** Applies one operation of the generated sequence. */
+let scenarioNonce = 0;
+
 async function apply(
   repo: TempRepo,
   operation: Operation,
@@ -58,8 +60,9 @@ async function apply(
   if (operation.kind === "scenario") {
     const head = (await repo.store.listVersions())[0]?.id;
     if (head !== undefined) {
-      await repo.store.createScenario(operation.name, head);
-      return operation.name;
+      const unique = `${operation.name}-${scenarioNonce++}`;
+      await repo.store.createScenario(unique, head);
+      return unique;
     }
     return scenario;
   }
@@ -111,7 +114,7 @@ describe("SUT-P-12 — every version stays restorable, nothing is ever removed",
               const seen = new Map<string, string>();
               const counts = new Map<string, number>();
               let scenario: string | undefined;
-              for (const operation of operations) {
+                        for (const operation of operations) {
                 scenario = await apply(repo, operation, scenario);
                 await checkVersions(repo, scenario, seen, counts);
               }

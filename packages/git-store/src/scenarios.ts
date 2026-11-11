@@ -20,13 +20,18 @@ export function scenarioOps(ctx: StoreContext): ScenarioOps {
   const { fs, dir } = ctx;
   return {
     async createScenario(name: string, fromVersion: string) {
+      // Never overwrite an existing scenario: its versions would disappear,
+      // which the no-silent-loss guarantee forbids.
+      const existing = await headOf(fs, dir, scenarioRef(name));
+      if (existing !== null) {
+        throw new Error(`error.scenario-exists: ${name}`);
+      }
       await git.branch({
         fs,
         dir,
         ref: scenarioRef(name),
         object: fromVersion,
         checkout: false,
-        force: true,
       });
       return { name, head: fromVersion, reference: false };
     },
