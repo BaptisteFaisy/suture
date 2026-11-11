@@ -1,24 +1,27 @@
 /**
- * The engines as the browser uses them: the real packages, wired together.
+ * The engines as the browser uses them: the real packages, wired together,
+ * without leaving the app thread.
+ *
+ * This is the reference implementation of the port — the fallback used when
+ * web workers are unavailable (`store/workerEngines.ts`) and the baseline the
+ * worker-backed version is measured against.
  */
-import { deriveCanonical } from "@suture/canonical";
-import { compare } from "@suture/diff";
 import { createBrowserStore } from "@suture/git-store";
-import { mergeEngine } from "@suture/merge";
-import { readWorkbook, zipParts } from "@suture/ooxml-io";
-import { patchWorkbook } from "@suture/ooxml-patch";
+import { createAnalysisEngines } from "../workers/analysisEngines";
 import type { Engines } from "./ports";
 
-/** The engine set used by the application. */
+/** The engine set used by the application when it stays on one thread. */
 export function createBrowserEngines(): Engines {
+  const analysis = createAnalysisEngines();
   return {
-    readWorkbook,
-    deriveCanonical,
-    compare,
-    planMerge: mergeEngine.plan.bind(mergeEngine),
-    resolveMerge: mergeEngine.resolve.bind(mergeEngine),
-    patchWorkbook,
-    zipParts,
+    readWorkbook: async (bytes) => analysis.readWorkbook(bytes),
+    deriveCanonical: async (parts) => analysis.deriveCanonical(parts),
+    compare: async (before, after, beforeParts, afterParts) =>
+      analysis.compare(before, after, beforeParts, afterParts),
+    planMerge: async (origin, a, b) => analysis.planMerge(origin, a, b),
+    resolveMerge: async (plan, choices) => analysis.resolveMerge(plan, choices),
+    patchWorkbook: async (parts, request) => analysis.patchWorkbook(parts, request),
+    zipParts: async (parts) => analysis.zipParts(parts),
     openStore: async (workbookId) => createBrowserStore(workbookId),
   };
 }

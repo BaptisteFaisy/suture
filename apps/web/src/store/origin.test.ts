@@ -100,23 +100,23 @@ function trackedRegistry(): Registry {
 }
 
 describe("readMarker — the stamp of a returning file", () => {
-  it("reads back the marker of a stamped workbook", () => {
+  it("reads back the marker of a stamped workbook", async () => {
     const stamped = stampOriginMarker(fixtureParts(), { versionId: "v1", scenario: "Marie" });
     const deps = depsWith(
-      fakeEngines({ readWorkbook: () => ({ parts: stamped, macroEnabled: false }) }),
+      fakeEngines({ readWorkbook: async () => ({ parts: stamped, macroEnabled: false }) }),
     );
-    expect(readMarker(deps, new Uint8Array())).toEqual({ versionId: "v1", scenario: "Marie" });
+    expect(await readMarker(deps, new Uint8Array())).toEqual({ versionId: "v1", scenario: "Marie" });
   });
 
-  it("returns null when the file carries no marker", () => {
+  it("returns null when the file carries no marker", async () => {
     const deps = depsWith(
-      fakeEngines({ readWorkbook: () => ({ parts: fixtureParts(), macroEnabled: false }) }),
+      fakeEngines({ readWorkbook: async () => ({ parts: fixtureParts(), macroEnabled: false }) }),
     );
-    expect(readMarker(deps, new Uint8Array())).toBeNull();
+    expect(await readMarker(deps, new Uint8Array())).toBeNull();
     expect(readOriginMarker(fixtureParts())).toBeNull();
   });
 
-  it("returns null when the properties survived without the Suture entries", () => {
+  it("returns null when the properties survived without the Suture entries", async () => {
     const washed: OoxmlParts = [
       ...fixtureParts(),
       {
@@ -129,8 +129,10 @@ describe("readMarker — the stamp of a returning file", () => {
         ),
       },
     ];
-    const deps = depsWith(fakeEngines({ readWorkbook: () => ({ parts: washed, macroEnabled: false }) }));
-    expect(readMarker(deps, new Uint8Array())).toBeNull();
+    const deps = depsWith(
+      fakeEngines({ readWorkbook: async () => ({ parts: washed, macroEnabled: false }) }),
+    );
+    expect(await readMarker(deps, new Uint8Array())).toBeNull();
   });
 });
 

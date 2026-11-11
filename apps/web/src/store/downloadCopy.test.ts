@@ -24,8 +24,8 @@ function copyEngines(overrides: Partial<Engines> = {}): Engines {
     openStore: refuse,
     planMerge: refuse,
     resolveMerge: refuse,
-    patchWorkbook,
-    zipParts,
+    patchWorkbook: async (parts, request) => patchWorkbook(parts, request),
+    zipParts: async (parts) => zipParts(parts),
     ...overrides,
   };
 }
@@ -83,6 +83,16 @@ function recordingHost(): { host: HostPorts; downloads: [string, Uint8Array][] }
   return { host, downloads };
 }
 
+/** The real patcher, recording every request it was handed. */
+function recordingEngines(requests: PatchRequest[]): Engines {
+  return copyEngines({
+    patchWorkbook: async (parts, request) => {
+      requests.push(request);
+      return patchWorkbook(parts, request);
+    },
+  });
+}
+
 function openSession(store: SutureStore, versions: VersionMeta[] = []): SessionState {
   return { ...EMPTY_SESSION, workbookId: "wb-1", store, versions };
 }
@@ -91,15 +101,7 @@ describe("downloadWorkingCopy — the copy leaves stamped (SUT-F-06)", () => {
   it("writes the marker through the patcher with zero cell edits", async () => {
     const requests: PatchRequest[] = [];
     const { host, downloads } = recordingHost();
-    const deps: AdapterDeps = {
-      engines: copyEngines({
-        patchWorkbook: (parts, request) => {
-          requests.push(request);
-          return patchWorkbook(parts, request);
-        },
-      }),
-      host,
-    };
+    const deps: AdapterDeps = { engines: recordingEngines(requests), host };
     await downloadWorkingCopy(deps, openSession(storeWith(fixtureParts())), "abc1234def", "Marie");
     expect(requests).toHaveLength(1);
     const request = requests[0];
@@ -116,8 +118,13 @@ describe("downloadWorkingCopy — the copy leaves stamped (SUT-F-06)", () => {
     await downloadWorkingCopy(deps, openSession(storeWith(fixtureParts())), "abc1234def");
     const bytes = downloads[0]?.[1];
     expect(bytes).toBeInstanceOf(Uint8Array);
-    const reading: AdapterDeps = { engines: copyEngines({ readWorkbook }), host };
-    expect(readMarker(reading, bytes ?? new Uint8Array())).toEqual({ versionId: "abc1234def" });
+    const reading: AdapterDeps = {
+      engines: copyEngines({ readWorkbook: async (all) => readWorkbook(all) }),
+      host,
+    };
+    expect(await readMarker(reading, bytes ?? new Uint8Array())).toEqual({
+      versionId: "abc1234def",
+    });
   });
 
   it("takes the scenario of the version when the caller does not name one", async () => {
@@ -126,8 +133,8 @@ describe("downloadWorkingCopy — the copy leaves stamped (SUT-F-06)", () => {
     const session = openSession(storeWith(fixtureParts()), [meta("abc1234def", "Marie")]);
     await downloadWorkingCopy(deps, session, "abc1234def");
     expect(downloads[0]?.[0]).toBe("working-copy-abc1234-Marie.xlsx");
-    const reading: AdapterDeps = { engines: copyEngines({ readWorkbook }), host };
-    expect(readMarker(reading, downloads[0]?.[1] ?? new Uint8Array())).toEqual({
+    const reading: AdapterDeps = { engines: copyEngines({ readWorkbook: async (all) => readWorkbook(all) }), host };
+    expect(await readMarker(reading, downloads[0]?.[1] ?? new Uint8Array())).toEqual({
       versionId: "abc1234def",
       scenario: "Marie",
     });
