@@ -15,3 +15,6 @@ coverage/
 # Playwright
 test-results/
 playwright-report/
+
+# Banc de performance : classeur préparé, régénérable, jamais committé
+bench/data/
