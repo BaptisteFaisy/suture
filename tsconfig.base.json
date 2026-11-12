@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "useDefineForClassFields": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@suture/contracts": ["./packages/contracts/src/index.ts"],
+      "@suture/formula": ["./packages/formula/src/index.ts"],
+      "@suture/ooxml-io": ["./packages/ooxml-io/src/index.ts"],
+      "@suture/canonical": ["./packages/canonical/src/index.ts"],
+      "@suture/diff": ["./packages/diff/src/index.ts"],
+      "@suture/merge": ["./packages/merge/src/index.ts"],
+      "@suture/ooxml-patch": ["./packages/ooxml-patch/src/index.ts"],
+      "@suture/git-store": ["./packages/git-store/src/index.ts"],
+      "@suture/ui": ["./packages/ui/src/index.ts"]
+    }
+  }
+}

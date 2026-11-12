@@ -1,0 +1,24 @@
+{
+  "name": "Hidden sheet",
+  "output": "hidden-sheet.xlsx",
+  "options": {
+    "sharedStrings": true,
+    "hiddenSheet": true
+  },
+  "sheets": [
+    {
+      "name": "Visible",
+      "cells": [
+        { "ref": "A1", "value": "Feuille visible" },
+        { "ref": "B1", "value": 42 }
+      ]
+    },
+    {
+      "name": "Cachée",
+      "cells": [
+        { "ref": "A1", "value": "Feuille masquée" },
+        { "ref": "B1", "value": 99 }
+      ]
+    }
+  ]
+}

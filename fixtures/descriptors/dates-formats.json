@@ -1,0 +1,28 @@
+{
+  "name": "Dates and formats",
+  "output": "dates-formats.xlsx",
+  "options": {
+    "sharedStrings": true
+  },
+  "sheets": [
+    {
+      "name": "Échéances",
+      "cells": [
+        { "ref": "A1", "value": "Date" },
+        { "ref": "B1", "value": "Montant" },
+        { "ref": "A2", "value": "01/11/2026" },
+        { "ref": "B2", "value": 46327, "format": "DD/MM/YYYY" },
+        { "ref": "A3", "value": "15/11/2026" },
+        { "ref": "B3", "value": 46341, "format": "DD/MM/YYYY" },
+        { "ref": "A4", "value": "01/12/2026" },
+        { "ref": "B4", "value": 46357, "format": "DD/MM/YYYY" },
+        { "ref": "A6", "value": "Taux" },
+        { "ref": "B6", "value": 0.05, "format": "0.00 %" },
+        { "ref": "A7", "value": "Euro" },
+        { "ref": "B7", "value": 1234.5, "format": "#,##0.00 €" },
+        { "ref": "A8", "value": "Milliers" },
+        { "ref": "B8", "value": 2500000, "format": "#,##0" }
+      ]
+    }
+  ]
+}

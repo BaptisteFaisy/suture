@@ -1,0 +1,20 @@
+# Python (gardes CI)
+__pycache__/
+*.py[cod]
+
+# Node / TypeScript
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.vite/
+*.local
+
+# Jamais .kiro ici : le règlement Kiroween exige que le dossier soit suivi.
+
+# Playwright
+test-results/
+playwright-report/
+
+# Banc de performance : classeur préparé, régénérable, jamais committé
+bench/data/

@@ -1,0 +1,153 @@
+name: CI
+
+# Suture CI : quatre contrôles — types, lint, tests (unitaires + propriétés),
+# construction. Ils sont répartis sur DEUX jobs parallèles (`ci` et `build`) :
+# sur un exécuteur chargé, un job unique dépasse le budget de 5 minutes.
+#
+# Le check publié `ci` est exigé par le ruleset de `main` et par la file
+# Mergify, comme `ci-budget` et `couche0` ; `build` est exigé aussi.
+# Budget : verdict en 5 minutes max par job (règle « CI-BUDGET-5MIN »).
+# Les E2E Playwright sont hors PR (workflow dédié sur main).
+on:
+  pull_request:
+  merge_group:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          clean: false
+
+      # Runners self-hosted persistants : nettoyage du workspace, mais on
+      # conserve les node_modules (réinstallés à l'identique par pnpm selon le
+      # lockfile ; store pnpm partagé entre les dix workers du r630).
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '12.18.0'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Nettoyage du workspace
+        shell: bash
+        run: git clean -ffdx -e node_modules
+
+      - name: Dépendances (pnpm, lockfile figé)
+        shell: bash
+        run: |
+          if [ ! -f package.json ]; then
+            echo "::notice::pas de workspace Node sur cette branche — étapes Node sautées"
+            exit 0
+          fi
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile --prefer-offline
+          else
+            pnpm install --prefer-offline
+          fi
+
+      - name: Types + lint + tests
+        shell: bash
+        run: |
+          if [ ! -f package.json ]; then
+            echo "::notice::pas de workspace Node sur cette branche — étapes Node sautées"
+            exit 0
+          fi
+          pnpm typecheck
+          pnpm lint
+          pnpm test:run
+
+      # Garde du concours Kiroween : licence MIT détectable, dossier .kiro
+      # présent à la racine, suivi par Git et jamais ignoré.
+      - name: Garde concours (Kiroween)
+        shell: bash
+        run: |
+          set -e
+          [ -f LICENSE ] || { echo "::error::LICENSE manquant à la racine"; exit 1; }
+          grep -qi "MIT License" LICENSE || { echo "::error::licence non MIT"; exit 1; }
+          git ls-files .kiro | grep -q . || { echo "::error::.kiro absent du suivi Git"; exit 1; }
+          if git check-ignore -q .kiro; then
+            echo "::error::.kiro est ignoré par .gitignore (interdit par le règlement)"
+            exit 1
+          fi
+          echo "garde concours OK"
+
+      # Les gardes de la CI se testent elles-mêmes : couche0 + agents
+      # inferhub — stdlib, quelques secondes, aucun réseau.
+      - name: Tests des gardes CI (couche0, inferhub)
+        shell: bash
+        run: |
+          python3 .github/couche0/test_check_couche0.py
+          python3 .github/inferhub/test_conflict_agent.py
+          python3 .github/inferhub/test_test_agent.py
+          python3 .github/inferhub/test_scope_agent.py
+          python3 .github/inferhub/test_union_journal.py
+          python3 .github/inferhub/test_quota.py
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          clean: false
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '12.18.0'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Nettoyage du workspace
+        shell: bash
+        run: git clean -ffdx -e node_modules
+
+      - name: Dépendances (pnpm, lockfile figé)
+        shell: bash
+        run: |
+          if [ ! -f package.json ]; then
+            echo "::notice::pas de workspace Node sur cette branche — étapes Node sautées"
+            exit 0
+          fi
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile --prefer-offline
+          else
+            pnpm install --prefer-offline
+          fi
+
+      - name: Construction de production
+        shell: bash
+        run: |
+          if [ ! -f package.json ]; then
+            echo "::notice::pas de workspace Node sur cette branche — construction sautée"
+            exit 0
+          fi
+          pnpm build
+
+      - name: Gardes de dépôt (vocabulaire, taille des fichiers)
+        shell: bash
+        run: |
+          if [ ! -f package.json ]; then
+            echo "::notice::pas de workspace Node sur cette branche — gardes sautées"
+            exit 0
+          fi
+          pnpm guards

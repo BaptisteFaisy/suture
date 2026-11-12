@@ -1,0 +1,13 @@
+{
+  "name": "@suture/merge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Three-way combine plan, disagreements, safe fallback, report.",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@suture/contracts": "workspace:*"
+  }
+}

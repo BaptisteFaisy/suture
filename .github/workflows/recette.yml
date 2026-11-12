@@ -1,0 +1,82 @@
+name: recette
+
+# Recette complète du projet (docs/RECETTE.md, section B.18 du cahier) :
+# suite de tests entière, construction, gardes de dépôt et contrôle automatisé
+# de conformité au concours. Ce workflow ne tourne JAMAIS sur une pull request :
+# il est déclenché à la main et chaque nuit, sur les workers r630 du dépôt
+# (label suture-worker), ce qui les laisse disponibles pour les checks de PR.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 2 * * *"
+
+concurrency:
+  group: recette
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  recette:
+    name: recette
+    runs-on: ubuntu-latest
+    timeout-minutes: 30 # hors PR : suite complète + construction + conformité + banc de perf (~5 min : préparation du classeur de 200 000 cellules, puis passes mesurées)
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          clean: false
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '12.18.0'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Nettoyage du workspace
+        shell: bash
+        run: git clean -ffdx -e node_modules
+
+      - name: Dépendances
+        shell: bash
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Types, lint, tests (unitaires + propriétés), construction
+        shell: bash
+        run: |
+          pnpm typecheck
+          pnpm lint
+          pnpm test:run
+          pnpm build
+
+      - name: Gardes de dépôt (vocabulaire, taille des fichiers)
+        shell: bash
+        run: pnpm guards
+
+      # Banc de performance (200 000 cellules) : la préparation du classeur et
+      # les passes mesurées ajoutent ~5 min. `continue-on-error` : une cible du
+      # cahier non tenue ne casse pas la recette — le verdict s'affiche dans le
+      # journal et dans bench/RESULTS.md, téléversé comme artefact.
+      - name: Banc de performance
+        continue-on-error: true
+        shell: bash
+        run: |
+          node bench/generate-large.mjs
+          node bench/perf.mjs
+
+      - name: Artefact — résultats du banc
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results
+          path: bench/RESULTS.md
+          if-no-files-found: warn
+
+      - name: Contrôle de conformité au concours
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMERGE_PAT }}
+        shell: bash
+        run: node scripts/check-contest.mjs

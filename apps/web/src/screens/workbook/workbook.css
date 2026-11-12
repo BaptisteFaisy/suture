@@ -1,0 +1,433 @@
+/* Screen 2 — the thread, the versions, the scenarios, the dialogs, the export.
+   Art direction (spec merge-wizard): a sewing workshop. One continuous thread,
+   round points for the versions, a scar-coloured suture for every combine. */
+
+.screen-subtitle {
+  margin: 0 0 1rem;
+  color: var(--ink-soft);
+}
+
+.live-region {
+  min-height: 1.4em;
+  margin: 0 0 0.5rem;
+  color: var(--thread);
+}
+
+.error-banner {
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid var(--scar);
+  background: var(--panel);
+  color: var(--scar);
+}
+
+/* --- the thread --- */
+
+.thread-figure {
+  margin: 0 0 1.5rem;
+}
+
+.thread-frame {
+  position: relative;
+  overflow-x: auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.thread-graph {
+  display: block;
+}
+
+.thread-line {
+  stroke: var(--thread);
+  stroke-width: 2;
+  fill: none;
+}
+
+.thread-line-alt {
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  fill: none;
+}
+
+.thread-dot {
+  fill: var(--paper);
+  stroke: var(--thread);
+  stroke-width: 2;
+}
+
+.thread-dot-selected {
+  fill: var(--scar);
+  stroke: var(--scar);
+}
+
+.thread-suture line {
+  stroke: var(--scar);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* The clickable overlay of a point: an invisible hit area, fully focusable. */
+.thread-hit {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.thread-hit:hover {
+  background: color-mix(in srgb, var(--scar) 18%, transparent);
+}
+
+.thread-hit:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: 2px;
+}
+
+.thread-hit-selected {
+  background: color-mix(in srgb, var(--scar) 22%, transparent);
+}
+
+.thread-caption {
+  margin-top: 0.5rem;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+/* --- versions and scenarios side by side --- */
+
+.workbook-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.version-panel {
+  flex: 1 1 22rem;
+  min-width: 0;
+}
+
+.scenario-panel {
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+.version-list,
+.scenario-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.version-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.version-row.selected {
+  border-left-color: var(--scar);
+}
+
+.version-open {
+  font: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.version-open:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: 2px;
+}
+
+.version-note {
+  font-weight: 600;
+}
+
+.version-rank {
+  color: var(--ink-soft);
+  font-weight: 400;
+  font-size: 0.9rem;
+}
+
+.version-meta {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.version-milestone {
+  color: var(--thread);
+  font-size: 0.9rem;
+}
+
+.version-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.selected-note {
+  margin: 0.75rem 0 0;
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--thread);
+  color: var(--ink-soft);
+}
+
+/* --- scenarios --- */
+
+.scenario-create {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.scenario-create-label {
+  flex: 1 1 100%;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.scenario-origin {
+  flex: 1 1 100%;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+.scenario-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.75rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.scenario-reference {
+  color: var(--thread);
+  font-size: 0.9rem;
+  border: 1px solid var(--thread);
+  border-radius: var(--radius);
+  padding: 0.05rem 0.45rem;
+}
+
+/* --- dialogs --- */
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, var(--ink) 45%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 10;
+}
+
+.dialog-box {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  max-width: 32rem;
+  width: 100%;
+}
+
+.dialog-box h3 {
+  margin: 0 0 0.5rem;
+}
+
+.dialog-hint,
+.dialog-subject,
+.dialog-reassurance {
+  margin: 0 0 0.75rem;
+  color: var(--ink-soft);
+}
+
+.dialog-subject {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.dialog-box input[type="text"] {
+  font: inherit;
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.dialog-confirm {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+/* --- buttons and focus --- */
+
+.version-actions button,
+.scenario-create button,
+.scenario-row button,
+.dialog-actions button,
+.export-action {
+  font: inherit;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.version-actions button:focus-visible,
+.scenario-create button:focus-visible,
+.scenario-create input:focus-visible,
+.scenario-row button:focus-visible,
+.dialog-actions button:focus-visible,
+.dialog-box input:focus-visible,
+.export-action:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: 2px;
+}
+
+.version-actions button:disabled,
+.scenario-create button:disabled,
+.scenario-row button:disabled,
+.export-action:disabled {
+  color: var(--ink-soft);
+  border-color: var(--line);
+  background: color-mix(in srgb, var(--line) 40%, var(--panel));
+  cursor: not-allowed;
+}
+
+/* --- the developer export panel --- */
+
+.export-panel {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--panel);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+}
+
+.export-intro,
+.export-hint,
+.export-note {
+  color: var(--ink-soft);
+  margin: 0 0 0.75rem;
+}
+
+.export-action {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.export-status {
+  color: var(--thread);
+  margin: 0.75rem 0 0;
+}
+
+.export-error {
+  color: var(--scar);
+  margin: 0.75rem 0 0;
+}
+
+.export-steps summary {
+  cursor: pointer;
+  color: var(--accent);
+}
+
+.export-steps code {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 0.9rem;
+}
+
+/* The thread is drawn once; with reduced motion it never animates. */
+@media (prefers-reduced-motion: no-preference) {
+  .thread-line {
+    stroke-dasharray: 1200;
+    stroke-dashoffset: 1200;
+    animation: thread-draw 900ms ease-out forwards;
+  }
+
+  @keyframes thread-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thread-line,
+  .thread-dot,
+  .thread-suture line {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Barre d'actions de l'écran classeur : comparaison et réunion. */
+.workbook-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin: 0.4rem 0 1rem;
+}
+
+.workbook-actions button {
+  font: inherit;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--thread);
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.workbook-actions button:hover {
+  border-color: var(--scar);
+  color: var(--scar);
+}
+
+.workbook-actions button:focus-visible {
+  outline: 3px solid var(--scar);
+  outline-offset: 2px;
+}

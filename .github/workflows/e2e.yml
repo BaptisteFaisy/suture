@@ -1,0 +1,104 @@
+name: E2E
+
+# Parcours de bout en bout Playwright (branche main uniquement), plus le test
+# de fumée LibreOffice du fichier réuni (cahier B.11).
+# Hors PR : le budget CI de 5 minutes ne s'applique qu'aux pull requests.
+# Ce workflow s'exécute sur le poste de travail (suture-pc) où Chromium headless
+# et LibreOffice sont disponibles ; les exécuteurs du r630 n'ont pas soffice.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  # Le run d'un commit dépassé du même ref ne sert plus : on l'annule. La clé
+  # inclut le ref pour que main et un déclenchement manuel ne s'annulent pas.
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: e2e
+    runs-on: [self-hosted, linux, x64, suture-pc]
+    timeout-minutes: 10 # hors PR : construction + lancement serveur + tests (justifié)
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          clean: false
+
+      - name: Outillage Node
+        shell: bash
+        run: |
+          for d in "$HOME/node24/bin" "$HOME/.local/bin"; do
+            [ -d "$d" ] && echo "$d" >> "$GITHUB_PATH"
+          done
+          node --version
+          pnpm --version
+
+      - name: Dépendances + build
+        shell: bash
+        run: |
+          pnpm install --frozen-lockfile --prefer-offline
+          pnpm build
+
+      - name: Lancement des parcours de bout en bout
+        shell: bash
+        run: pnpm test:e2e
+
+      - name: Publication des artefacts de fumée
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: suture-smoke
+          path: |
+            test-results/combined/
+            test-results/**/error-context.md
+          if-no-files-found: warn
+          retention-days: 7
+
+  # Cahier B.11 : le fichier RÉUNI doit s'ouvrir dans une suite bureautique
+  # libre sans message d'erreur ni réparation. Le scénario de démonstration
+  # (integration/demo-flow.test.ts) produit le classeur réuni réel ; LibreOffice
+  # headless le convertit, puis on contrôle la sortie : présente, non vide,
+  # zip intègre. soffice n'existe que sur le poste de travail (suture-pc).
+  soffice-smoke:
+    name: soffice-smoke
+    runs-on: [self-hosted, linux, x64, suture-pc]
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          clean: false
+
+      - name: Outillage Node
+        shell: bash
+        run: |
+          for d in "$HOME/node24/bin" "$HOME/.local/bin"; do
+            [ -d "$d" ] && echo "$d" >> "$GITHUB_PATH"
+          done
+          node --version
+          pnpm --version
+
+      - name: Dépendances (pnpm, lockfile figé)
+        shell: bash
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Production du fichier réuni (scénario de démonstration)
+        shell: bash
+        run: |
+          set -euo pipefail
+          combined="$RUNNER_TEMP/suture-combined.xlsx"
+          rm -f "$combined"
+          SUTURE_COMBINED_OUT="$combined" pnpm exec vitest run integration/demo-flow.test.ts
+          test -s "$combined"
+
+      - name: Fumée LibreOffice (conversion headless + zip intègre)
+        shell: bash
+        run: node scripts/soffice-smoke.mjs "$RUNNER_TEMP/suture-combined.xlsx"
