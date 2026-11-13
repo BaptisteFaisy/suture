@@ -20,7 +20,7 @@ permissions:
 jobs:
   recette:
     name: recette
-    runs-on: [self-hosted, linux, x64, suture-worker]
+    runs-on: ubuntu-latest
     timeout-minutes: 30 # hors PR : suite complète + construction + conformité + banc de perf (~5 min : préparation du classeur de 200 000 cellules, puis passes mesurées)
     steps:
       - uses: actions/checkout@v4
@@ -29,15 +29,13 @@ jobs:
           persist-credentials: false
           clean: false
 
-      - name: Outillage (Node du r630, gh du poste)
-        shell: bash
-        run: |
-          for d in "$HOME/node24/bin" "$HOME/bin" "$HOME/.local/bin"; do
-            [ -d "$d" ] && echo "$d" >> "$GITHUB_PATH"
-          done
-          node --version
-          pnpm --version
-
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '12.18.0'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
       - name: Nettoyage du workspace
         shell: bash
         run: git clean -ffdx -e node_modules

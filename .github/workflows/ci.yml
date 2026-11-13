@@ -25,7 +25,7 @@ permissions:
 jobs:
   ci:
     name: ci
-    runs-on: [self-hosted, linux, x64, suture-pc]
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
@@ -37,19 +37,16 @@ jobs:
       # Runners self-hosted persistants : nettoyage du workspace, mais on
       # conserve les node_modules (réinstallés à l'identique par pnpm selon le
       # lockfile ; store pnpm partagé entre les dix workers du r630).
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '12.18.0'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
       - name: Nettoyage du workspace
         shell: bash
         run: git clean -ffdx -e node_modules
-
-      - name: Outillage Node (r630 ou poste de travail)
-        shell: bash
-        run: |
-          # Node 24 sur le r630 (~/node24/bin), Node du poste (~/.local/bin).
-          for d in "$HOME/node24/bin" "$HOME/.local/bin"; do
-            [ -d "$d" ] && echo "$d" >> "$GITHUB_PATH"
-          done
-          node --version
-          pnpm --version
 
       - name: Dépendances (pnpm, lockfile figé)
         shell: bash
@@ -104,7 +101,7 @@ jobs:
 
   build:
     name: build
-    runs-on: [self-hosted, linux, x64, suture-pc]
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
@@ -113,19 +110,16 @@ jobs:
           persist-credentials: false
           clean: false
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '12.18.0'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
       - name: Nettoyage du workspace
         shell: bash
         run: git clean -ffdx -e node_modules
-
-      - name: Outillage Node (r630 ou poste de travail)
-        shell: bash
-        run: |
-          # Node 24 sur le r630 (~/node24/bin), Node du poste (~/.local/bin).
-          for d in "$HOME/node24/bin" "$HOME/.local/bin"; do
-            [ -d "$d" ] && echo "$d" >> "$GITHUB_PATH"
-          done
-          node --version
-          pnpm --version
 
       - name: Dépendances (pnpm, lockfile figé)
         shell: bash
