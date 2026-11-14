@@ -31,7 +31,7 @@ a three-way merge at cell level, and office vocabulary.
 
 | Champ | Valeur |
 |---|---|
-| Live app | `https://baptistefaisy.github.io/suture/` |
+| Live app | `https://tradoooo.github.io/suture/` |
 | Repository | `https://github.com/BaptisteFaisy/suture` |
 | Video | [à coller après tournage] |
 | Blog post (bonus) | [à coller après publication] |
@@ -88,7 +88,7 @@ there is an end-to-end test that asserts exactly that.
 ### Instructions for judges
 
 ```
-1. Open https://baptistefaisy.github.io/suture/ (a private window is fine: no
+1. Open https://tradoooo.github.io/suture/ (a private window is fine: no
    account, no cookie, no upload).
 2. Click "Load the demo workbook". This loads the case from the pitch: an
    original budget, Paul's copy (three amounts corrected, one row added) and
@@ -200,8 +200,12 @@ picker in the header.
       like most in Kiro and how it changed the way you develop. Draft in
       section 3.
 - [ ] **Ghost of Kiroween Past** — only if you were registered in 2025.
-- [ ] **Best Kiro Crew App / Best Demo** — not applicable to this project
-      (these bonuses target project A in the brief).
+- [ ] **Best Kiro Crew App** — not applicable to this project (this bonus
+      targets project A in the brief).
+- **Best Demo** — there is no checkbox to tick: the prize is awarded
+      automatically to the best Presentation score among the top 10 % of
+      projects. Nothing to fill in here — it is won through the video and the
+      live demo.
 
 ---
 
@@ -259,7 +263,7 @@ table references and external workbooks. The lesson is not "specs are good".
 It is that the value of a spec is the list of cases it forces you to enumerate
 before you start typing.
 
-Suture is live at https://baptistefaisy.github.io/suture/ and the source is at
+Suture is live at https://tradoooo.github.io/suture/ and the source is at
 https://github.com/BaptisteFaisy/suture (MIT). Click "Load the demo workbook":
 you get the treasurer's Thursday afternoon, and you can reconcile it in about
 two minutes.
@@ -288,7 +292,7 @@ with the sentence "WHEN this happens, the system SHALL…", and I let the proper
 tests argue with me afterwards. Eleven bugs found that way, including one no
 hand-written test would ever have caught.
 
-Live demo (nothing leaves your browser): https://baptistefaisy.github.io/suture/
+Live demo (nothing leaves your browser): https://tradoooo.github.io/suture/
 ```
 
 ---
