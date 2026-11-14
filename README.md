@@ -14,7 +14,7 @@ workbook ever leaves your machine.
 
 ## Live demo
 
-**https://baptistefaisy.github.io/suture/** — click **"Load the demo
+**https://tradoooo.github.io/suture/** — click **"Load the demo
 workbook"**: a tracked workbook with three versions and two divergent scenarios
 is ready to compare and combine in under two minutes. No account, no upload,
 nothing leaves the browser.
